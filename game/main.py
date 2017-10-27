@@ -16,7 +16,7 @@ def main():
                 break
             game.set_action(player, tron.ACTION_STRAIGHT)
         print(game)
-    #print(game)
+    game_state = game.get_game_state()
 
 
 def get_args():
