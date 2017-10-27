@@ -113,8 +113,11 @@ class TronGame(object):
     def check_state(self):
         for player_idx, player in enumerate(self.players):
             for x, y in player.body:
-                if y < 0 or y >= self.height or x >= self.width or x < 0:
+                if self.check_field_bounds(x, y):
                     self.player_lost[player_idx] = True
+
+    def check_field_bounds(self, x, y):
+        return y < 0 or y >= self.height or x >= self.width or x < 0
 
     def get_available_actions(self):
         return [ACTION_TURN_LEFT, ACTION_TURN_RIGHT, ACTION_STRAIGHT]
@@ -123,7 +126,8 @@ class TronGame(object):
         self.game_field = np.zeros((self.height, self.width), dtype=np.int8)
         for player_idx, player in enumerate(self.players):
             for x, y in player.body:
-                if x >= self.width or y >= self.height or x < 0 or y < 0:
+                if self.check_field_bounds(x, y):
+                    print("Warning: this should not happen, x or y is greater than field dimension")
                     break
                 self.game_field[y][x] = player_idx + 1
         return self.game_field
@@ -143,9 +147,6 @@ class TronGame(object):
 
     def __str__(self):
         out = ''
-        if self.game_over():
-            print('Game is already over')
-            return out
 
         game_field = self.get_game_field()
 
