@@ -1,4 +1,7 @@
 import numpy as np
+import collections
+
+GameState = collections.namedtuple('GameState', ['game_over', 'game_field', 'player_pos', 'player_orientation', 'player_lost'])
 
 class Player(object):
     def __init__(self, name='default', x=0, y=0, orientation=90, body=None):
@@ -124,8 +127,11 @@ class TronGame(object):
                 self.game_field[y][x] = player_idx + 1
         return self.game_field
 
-    def get_game_field_flattened(self):
+    def get_game_state_flattened(self):
         return np.array(self.get_game_state()).flatten()
+
+    def get_game_state_as_class(self):
+        return GameState(*self.get_game_state())
 
     def game_over(self):
         self.check_state()
