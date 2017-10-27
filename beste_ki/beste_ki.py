@@ -1,4 +1,4 @@
 import random
 
-def predict(state, position):
+def predict(game):
     return random.randint() % 3
