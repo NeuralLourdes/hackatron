@@ -7,7 +7,10 @@ game = tron.TronGame(width=30, height=30)
 
 for i in range(GAME_STEPS):
     print(game)
+    if game.game_over():
+        break
     for player in range(0, 2):
+
         game_state = game.get_game_state()
         is_game_over, game_field, player_pos, player_orientation, player_lost = game_state
 
