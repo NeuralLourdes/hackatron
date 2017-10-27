@@ -117,10 +117,10 @@ class TronGame(object):
 
     def get_game_field(self):
         self.game_field = np.zeros((self.height, self.width), dtype=np.int8)
-        self.game_field[:,:] = -1
+        #self.game_field[:,:] = -1
         for player_idx, player in enumerate(self.players):
             for x, y in player.body:
-                self.game_field[y][x] = player_idx
+                self.game_field[y][x] = player_idx + 1
         return self.game_field
 
 
