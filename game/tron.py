@@ -99,6 +99,14 @@ class TronGame(object):
         return collision_found
 
 
+    def get_player_pos(self):
+        return [player.get_position() for player in self.player]
+
+    def get_player_orientation(self):
+        return [player.orientation for player in self.player]
+
+    def get_game_state(self):
+        return self.get_game_field, self.get_player_pos(), self.get_player_orientation()
 
     def check_state(self):
         for player_idx, player in enumerate(self.players):
