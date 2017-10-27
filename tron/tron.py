@@ -117,10 +117,10 @@ class TronGame(object):
 
     def get_game_field(self):
         self.game_field = np.zeros((self.height, self.width), dtype=np.int8)
-        self.game_field[:,:] = 9
+        self.game_field[:,:] = -1
         for player_idx, player in enumerate(self.players):
             for x, y in player.body:
-                self.game_field[y][x] = player_idx + 1
+                self.game_field[y][x] = player_idx
         return self.game_field
 
 
@@ -145,7 +145,7 @@ class TronGame(object):
         for y, row in enumerate(game_field):
             out += '|'
             for x, cell in enumerate(row):
-                if cell == 9:
+                if cell == -1:
                     out += ' '
                 else:
                     out += str(cell)
