@@ -85,16 +85,16 @@ class TronGame(object):
     def check_for_collision(self):
         collision_found = False
         for player_idx, player in enumerate(self.players):
-            collision = False
             other_player = self.players[(player_idx + 1) % 2]
-
-            for x, y in other_player.body:
+            collision_found_ = False
+            for x, y in other_player.body + player.body[:-1]:
                 if player.x == x and player.y == y:
-                    self.player_lost[player_idx] = True
-                    print('Collision!')
-                    collision = True
-                    collision_found = True
+                    collision_found_ = True
                     break
+            if collision_found_:
+                collision_found = True
+                self.player_lost[player_idx] = True
+
         return collision_found
 
 
