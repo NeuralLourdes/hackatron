@@ -17,6 +17,8 @@ def main():
             game.set_action(player, tron.ACTION_STRAIGHT)
         print(game)
     game_state = game.get_game_state()
+    print(game_state)
+    player_have_lost = game.player_lost
 
 
 def get_args():

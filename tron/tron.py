@@ -100,13 +100,13 @@ class TronGame(object):
 
 
     def get_player_pos(self):
-        return [player.get_position() for player in self.player]
+        return [player.get_position() for player in self.players]
 
     def get_player_orientation(self):
-        return [player.orientation for player in self.player]
+        return [player.orientation for player in self.players]
 
     def get_game_state(self):
-        return self.get_game_field, self.get_player_pos(), self.get_player_orientation()
+        return self.game_over(), self.get_game_field(), self.get_player_pos(), self.get_player_orientation(), self.player_lost
 
     def check_state(self):
         for player_idx, player in enumerate(self.players):
@@ -139,7 +139,8 @@ class TronGame(object):
 
         game_field = self.get_game_field()
 
-        out += '_' * (self.width * 2 + 2)
+        field_width_padded =(self.width * 2 + 2)
+        out += '_' * field_width_padded
         out += '\n'
         for y, row in enumerate(game_field):
             out += '|'
@@ -151,5 +152,5 @@ class TronGame(object):
                 out += ' '
             out += '|'
             out += '\n'
-        out += '-' * (self.width * 2 + 2)
+        out += '-' * field_width_padded
         return out
