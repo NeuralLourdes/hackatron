@@ -45,10 +45,9 @@ class Player(object):
 PLAYER_1 = 0
 PLAYER_2 = 1
 
-ACTION_TURN_LEFT = 'left'
-ACTION_TURN_RIGHT = 'right'
-ACTION_STRAIGHT = 'straight'
-
+ACTION_TURN_LEFT = 0
+ACTION_TURN_RIGHT = 1
+ACTION_STRAIGHT = 2
 
 class TronGame(object):
 
@@ -114,6 +113,8 @@ class TronGame(object):
                 if y < 0 or y >= self.height or x >= self.width or x < 0:
                     self.player_lost[player_idx] = True
 
+    def get_available_actions(self):
+        return [ACTION_TURN_LEFT, ACTION_TURN_RIGHT, ACTION_STRAIGHT]
 
     def get_game_field(self):
         self.game_field = np.zeros((self.height, self.width), dtype=np.int8)
@@ -123,6 +124,8 @@ class TronGame(object):
                 self.game_field[y][x] = player_idx + 1
         return self.game_field
 
+    def get_game_field_flattened(self):
+        return np.array(self.get_game_state()).flatten()
 
     def game_over(self):
         self.check_state()
