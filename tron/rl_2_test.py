@@ -12,7 +12,8 @@ def get_args():
     parser.add_argument('--width', type=int, default=100)
     parser.add_argument('--height', type=int, default=100)
     parser.add_argument('--disable_loading', action='store_true')
-    parser.add_argument('--verbose', type=int, default=1)
+    parser.add_argument('--save_period', type=int, default=100)
+    parser.add_argument('--verbose', type=int, default=2)
     args = parser.parse_args()
     return args
 
@@ -24,7 +25,7 @@ def main():
         dqn = rl_keras_train.get_model(env)
         if not args.disable_loading:
             rl_keras_train.load_progress(dqn)
-        dqn.fit(env, nb_steps=args.steps, visualize=False, verbose=args.verbose)
+        dqn.fit(env, nb_steps=args.steps, visualize=False, verbose=args.verbose, callbacks=rl_keras_train.get_callbacks(period=args.save_period))
     except Exception as e:
         print('Warning: {}'.format(e))
     print('Saving')

@@ -1,7 +1,9 @@
 import os
+import keras
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Flatten
 from keras.optimizers import Adam
+from keras import callbacks
 
 from rl.agents.dqn import DQNAgent
 from rl.policy import EpsGreedyQPolicy
@@ -33,7 +35,13 @@ def get_model(env, num_layers = 2, layer_size = 64):
 
     policy = EpsGreedyQPolicy()
     memory = SequentialMemory(limit=100000, window_length=1)
+
     dqn = DQNAgent(model=model, nb_actions=num_actions, memory=memory, nb_steps_warmup=0,
     target_model_update=1e-2, policy=policy)
     dqn.compile(Adam(lr=1e-3), metrics=['mae'])
     return dqn
+
+def get_callbacks(verbose = 2, period = 100):
+    return [
+        keras.callbacks.ModelCheckpoint(TRAIN_FILE, verbose = verbose, monitor='val_loss', mode='auto', period=period, save_weights_only=True)
+    ]
