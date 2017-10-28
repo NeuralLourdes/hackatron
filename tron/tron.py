@@ -94,6 +94,9 @@ class TronGame(object):
             self.check_for_collision()
             self.tick += 1
 
+    def get_random_pos(self):
+        return Point(np.random.choice(self.width), np.random.choice(self.height))
+
     def check_for_collision(self):
         collision_found = False
         for player_idx, player in enumerate(self.players):

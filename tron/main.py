@@ -21,7 +21,14 @@ def get_args():
 def main():
     args = get_args()
 
-    game = tron.TronGame(width = args.width, height = args.height)
+
+    def init_game(random = True):
+        game = tron.TronGame(width = args.width, height = args.height)
+        if random:
+            game.set_player_pos(game.get_random_pos(), game.get_random_pos())
+        return game
+
+    game = init_game()
 
     strategy_1 = HumanPlayerStrategy(player_idx=0)
     strategy_2 = HumanPlayerStrategy(player_idx=1)
@@ -66,7 +73,7 @@ def main():
         if game.game_over():
             pygame.time.wait(500)
             background = get_background()
-            game.reset()
+            game = init_game()
             continue
 
         screen.blit(background, (0, 0))
