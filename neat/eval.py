@@ -12,33 +12,59 @@ import numpy as np
 
 gameSize = [20,20]
 
+
 # extract map close to head of snake/tron
-def transform_map(gameMap, heads, rotation):
+def transform_map(gameMapRaw, heads, rotation):
+    head1 = np.array(heads[0]).T
+    head2 = np.array(heads[1]).T
+
+    heads = [head1, head2]
+
+    gameMapRaw[heads[0][1], heads[0][0]] = 3
+    gameMapRaw[heads[1][1], heads[1][0]] = 3
+
     visual_range = 5
-    visual_map = np.empty([visual_range, visual_range])
-    
-    x_head = heads[0][0]
-    y_head = heads[0][1]
-    for x_offset in range(visual_range):
+
+    def extract(gameMap, pick, head, rotation):
+        visual_map = np.empty([visual_range, visual_range], dtype=int)
+
+        x_head = head[0]
+        y_head = head[1]
+
         for y_offset in range(visual_range):
-            x_pos = x_head - 2 + x_offset
-            y_pos = y_head - 2 + y_offset
-            if x_pos >= 0 and x_pos < gameSize[0] and y_pos >= 0 and y_pos < gameSize[1]:
-                visual_map[x_offset, y_offset] = gameMap[x_pos, y_pos]
-            else:
-                visual_map[x_offset, y_offset] = -1
+            for x_offset in range(visual_range):
+                x_pos = x_head - int(visual_range)/2 + x_offset
+                y_pos = y_head - int(visual_range)/2 + y_offset
+                if x_pos >= 0 and x_pos < gameSize[0] and y_pos >= 0 and y_pos < gameSize[1]:
+                    val = gameMap[y_pos, x_pos]      
 
-    print(gameMap)
-    print(visual_map)
+                    def pick(x):
+                        return {
+                            0: 0,
+                            1: 1,
+                            2: 1,
+                            3: 3,
+                        }[x]
+
+                    visual_map[y_offset, x_offset] = pick(val)
+                else:
+                    visual_map[y_offset, x_offset] = 1
+
+        visual_map = np.rot90(visual_map, k = 1+int(rotation/90))
+        return visual_map
     
+    visual_map1 = extract(gameMapRaw, 1, head1, rotation[0])
+    visual_map2 = extract(gameMapRaw, 2, head2, rotation[1])
 
+    return [visual_map1, visual_map2]
+    
 
 def evolve(game, net1, net2):
     gameState = game.get_game_state()
     gameMap = np.array(gameState[1])
 
     #print(gameState)
-    transform_map(gameMap, gameState[2], gameState[3])
+    gameMap = transform_map(gameMap, gameState[2], gameState[3])
 
     # get decisions
     gameMap = gameMap.flatten()
