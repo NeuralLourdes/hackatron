@@ -10,7 +10,7 @@ def calculate_reward(player_idx):
     return env.tick + (-10 if env.player_lost[player_idx] else 20)
 
 USE_CHECK_POINT = True
-NUM_GAMES = 1000
+NUM_GAMES = 1000000
 
 if USE_CHECK_POINT:
     with open(STRATEGY_FILE, 'rb') as f:
