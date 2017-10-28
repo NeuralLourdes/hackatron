@@ -18,8 +18,8 @@ from strategy.player_game import PlayerGame
 def get_args():
     import argparse
     parser = argparse.ArgumentParser(description='Tron game')
-    parser.add_argument('--width', type=int, default = 100)
-    parser.add_argument('--height', type=int, default = 100)
+    parser.add_argument('--width', type=int, default = 30)
+    parser.add_argument('--height', type=int, default = 30)
     parser.add_argument('--player_dim', type=float, default=4)
     parser.add_argument('--timeout', type=int, default = 50)
     args = parser.parse_args()
@@ -46,7 +46,7 @@ def main():
 
     #strategy_1 = HumanPlayerStrategy(player_idx=0)
     strategy_1 = alphaSnakeStrategy(player_idx=0, width=game.width, height=game.height)
-    strategy_2 = HumanPlayerStrategy(player_idx=1)
+    strategy_2 = alphaSnakeStrategy(player_idx=1, width=game.width, height=game.height)
 
     #strategy_1 = SimpleStrategy(0)
     #strategy_2 = SimpleStrategy(1)
