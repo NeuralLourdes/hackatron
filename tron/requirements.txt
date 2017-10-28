@@ -1,1 +1,2 @@
-freegames==2.0.4
+numpy
+pygame
