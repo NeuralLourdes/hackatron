@@ -155,42 +155,31 @@ def eval_genomes(genomes, config):
                     genome2.fitness += 1
 
 
-def eval_genome_vs_the_best(genome, config):
-    
-    fitness = 0.0
-
-    #for genome_id1, genome1 in genomes:
-    #    for genome_id2, genome2 in genomes:
-    #        if genome_id1 > genome_id2:
-
-    net1 = neat.nn.FeedForwardNetwork.create(genome, config)
-    #net2 = neat.nn.FeedForwardNetwork.create(genome2, config)
-    
-    fight = game_outcome(net1, net1)
-
-    if fight == 1:
-        fitness += 1
-    elif fight == 2:
-        fitness -= 1
-
-    return fitness
-
 class genome_parallel:
-    def __init__(self, best_net):
+    def __init__(self, best_net, ref_net1, ref_net2):
         self.best_net = best_net
+        self.ref_net1 = ref_net1
+        self.ref_net2 = ref_net2
 
     def eval_fn(self, genome, config):
-        fitness = 0.0
+        fitness = 0
 
-        net1 = neat.nn.FeedForwardNetwork.create(genome, config)
-        net2 = neat.nn.FeedForwardNetwork.create(self.best_net, config)
+        testnet = neat.nn.FeedForwardNetwork.create(genome, config)
+        bestnet = neat.nn.FeedForwardNetwork.create(self.best_net, config)
         
-        fight = game_outcome(net1, net2)
+        def fight(opponet, fitness):
+            fight = game_outcome(testnet, opponet)
 
-        if fight == 1:
-            fitness += 1
-        elif fight == 2:
-            fitness -= 1
+            if fight == 1:
+                fitness += 1
+            elif fight == 2:
+                fitness -= 1
+
+            return fitness
+
+        fitness = fight(bestnet, fitness)
+        fitness = fight(self.ref_net1, fitness)
+        fitness = fight(self.ref_net2, fitness)
 
         return fitness
 

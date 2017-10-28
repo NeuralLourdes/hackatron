@@ -25,20 +25,23 @@ def run(config_file):
     pop.add_reporter(stats)
     pop.add_reporter(neat.Checkpointer(5))
 
-    generations = 5
+    generations = 25
 
     # SERIAL # 
     #winner = pop.run(play_tron.eval_genomes, generations)
 
     # PARALLEL # 
+    
     cpu_cores = 1
     winner = pop.run(play_tron.eval_genomes, 1) # first run serial
-    
+    refnet1 = NN_IO.restore('reference_net1')
+    refnet2 = NN_IO.restore('reference_net2')
+
     for n in range(generations):
-        goenni = play_tron.genome_parallel(winner)
+        goenni = play_tron.genome_parallel(winner, refnet1, refnet2)
         pe = neat.ParallelEvaluator(cpu_cores, goenni.eval_fn)
         winner = pop.run(pe.evaluate, 1)
-
+    
 
     # Show output of the most fit genome against training data.
     print('\nOutput:')
