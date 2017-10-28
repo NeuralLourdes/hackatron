@@ -12,6 +12,7 @@ from strategy.random_strategy import RandomStrategy
 from strategy.simple_strategy import SimpleStrategy
 from strategy.player_game import PlayerGame
 from strategy.rl_strategy import RLStrategy
+from strategy.rl_keras_strategy import RLKerasStrategy
 #from strategy.beste_ki import Beste_ki
 
 def get_args():
@@ -19,8 +20,8 @@ def get_args():
     parser = argparse.ArgumentParser(description='Tron game')
     parser.add_argument('--width', type=int, default = 100)
     parser.add_argument('--height', type=int, default = 100)
-    parser.add_argument('--player_dim', type=int, default=4)
-    parser.add_argument('--skip_frames', type=int, default=10)
+    parser.add_argument('--player_dim', type=int, default=5)
+    parser.add_argument('--skip_frames', type=int, default=1)
     parser.add_argument('--timeout', type=int, default = 10)
     args = parser.parse_args()
     return args
@@ -59,6 +60,8 @@ def main():
     #strategy_2 = SimpleStrategy(1)
     #strategy_1 = Beste_ki(0)
     #strategy_2 = Beste_ki(1)
+    strategy_1 = RLKerasStrategy(0, game)
+    strategy_2 = RLKerasStrategy(0, game)
     strategies = [strategy_1, strategy_2]
 
     player_game = PlayerGame(game, strategies)

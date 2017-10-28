@@ -1,36 +1,34 @@
+# !/usr/bin/env python3
+
 import numpy as np
 import tron
+from strategy.rl_keras_model import rl_keras_train
 
-from keras.models import Sequential
-from keras.layers import Dense, Activation, Flatten
-from keras.optimizers import Adam
 
-from rl.agents.dqn import DQNAgent
-from rl.policy import EpsGreedyQPolicy
-from rl.memory import SequentialMemory
+def get_args():
+    import argparse
+    parser = argparse.ArgumentParser(description='Train a keras DQN agend')
+    parser.add_argument('--steps', type=int, default=100000)
+    parser.add_argument('--width', type=int, default=100)
+    parser.add_argument('--height', type=int, default=100)
+    parser.add_argument('--verbose', type=int, default=1)
+    args = parser.parse_args()
+    return args
 
-ENV_NAME = 'CartPole-v0'
+def main():
+    args = get_args()
+    np.random.seed(123)
+    try:
+        env = tron.TronGame(width=args.width, height=args.width)
+        dqn = rl_keras_train.get_model(env)
 
-# Get the environment and extract the number of actions available in the Cartpole problem
-env = tron.TronGame(width = 30, height = 30)
-np.random.seed(123)
-env.seed(123)
-nb_actions = env.get_available_actions()
+        rl_keras_train.load_progress(dqn)
+        dqn.fit(env, nb_steps=args.steps, visualize=False, verbose=args.verbose)
+    except Exception as e:
+        print('Warning: {}'.format(e))
+    print('Saving')
+    rl_keras_train.save_progress(dqn)
 
-model = Sequential()
-model.add(Flatten(input_shape=(1,) + env.game_field.shape))
-model.add(Dense(16))
-model.add(Activation('relu'))
-model.add(Dense(nb_actions))
-model.add(Activation('linear'))
-print(model.summary())
 
-policy = EpsGreedyQPolicy()
-memory = SequentialMemory(limit=50000, window_length=1)
-dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=10,
-target_model_update=1e-2, policy=policy)
-dqn.compile(Adam(lr=1e-3), metrics=['mae'])
-
-# Okay, now it's time to learn something! We visualize the training here for show, but this slows down training quite a lot.
-dqn.fit(env, nb_steps=5000, visualize=True, verbose=2)
-dqn.test(env, nb_episodes=5, visualize=True)
+if __name__ == '__main__':
+    main()

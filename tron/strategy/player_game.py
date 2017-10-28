@@ -44,6 +44,7 @@ class PlayerGame(object):
             action = strategy.get_action(self.game, game_state, events)
             self.game.set_action(player_idx, action)
 
+
         if self.game.game_over():
             for strategy in self.strategies:
                 strategy.on_game_over(self.game, game_state)

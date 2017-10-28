@@ -103,6 +103,22 @@ class TronGame(object):
         self.player_lost = [False, False]
         self.tick = 0
         self.game_field = np.zeros((self.height, self.width), dtype=np.int8)
+        return self.game_field
+
+    def step(self, action):
+        player = [p for p, played in zip(range(len(self.players)), self.has_played) if not played][0]
+        self.set_action(player, action)
+
+        if np.any(self.player_lost):
+            reward = -10
+        else:
+            reward = self.tick
+
+        info = {}
+        return self.game_field, reward, self.game_over(), info
+
+    def render(self, mode):
+        pass
 
     def set_player_pos(self, player_1_pos, player_2_pos):
         for player, pos in zip(self.players, [player_1_pos, player_2_pos]):

@@ -1,6 +1,7 @@
 import neat
 import play_tron
+import NN_IO
 
-p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
+bester_boi = save_load_NN.restore('beste1')
 
-best_bois = p.run(play_tron.eval_genomes, 1)
+print(bester_boi)
