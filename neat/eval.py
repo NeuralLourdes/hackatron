@@ -31,11 +31,12 @@ def run(config_file):
     #winner = pop.run(play_tron.eval_genomes, generations)
 
     # PARALLEL # 
+    cpu_cores = 1
     winner = pop.run(play_tron.eval_genomes, 1) # first run serial
     
     for n in range(generations):
         goenni = play_tron.genome_parallel(winner)
-        pe = neat.ParallelEvaluator(1, goenni.eval_fn)
+        pe = neat.ParallelEvaluator(cpu_cores, goenni.eval_fn)
         winner = pop.run(pe.evaluate, 1)
 
 
