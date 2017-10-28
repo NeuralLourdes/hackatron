@@ -7,7 +7,7 @@ env = tron.TronGame(width = 30, height = 30)
 STRATEGY_FILE = 'tmp/rl_strategy.npy'
 
 def calculate_reward(player_idx):
-    return env.tick + (0 if env.player_lost[player_idx] else 20)
+    return env.tick + (-10 if env.player_lost[player_idx] else 20)
 
 USE_CHECK_POINT = True
 NUM_GAMES = 1000
@@ -18,11 +18,17 @@ if USE_CHECK_POINT:
 else:
     RLS = [QLearningTable(actions=list(env.get_available_actions())) for x in range(2)]
 
+def check_point():
+    with open(STRATEGY_FILE, 'wb') as f:
+        pickle.dump(RLS, f)
 
 try:
     for games in range(NUM_GAMES):
         # initial observation
         observation = env.game_field
+
+        if games % 5 == 0:
+            check_point()
 
         env.reset()
         while True:
@@ -50,8 +56,7 @@ try:
         print('({:4}/{}) {} ticks'.format(games + 1, NUM_GAMES, env.tick))
 except:
     print('Saving strategy')
-    with open(STRATEGY_FILE, 'wb') as f:
-        pickle.dump(RLS, f)
+    check_point()
 
 # Play test game
 for i in range(2):
