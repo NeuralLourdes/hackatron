@@ -18,12 +18,13 @@ def load_progress(model):
 def save_progress(model):
     model.save_weights(TRAIN_FILE, overwrite=True)
 
-def get_model(env, num_layers = 3):
+def get_model(env, num_layers = 2, layer_size = 64):
     num_actions = len(env.get_available_actions())
     model = Sequential()
     model.add(Flatten(input_shape=(1,) + env.game_field.shape))
+
     for i in range(num_layers):
-        model.add(Dense(16))
+        model.add(Dense(layer_size))
         model.add(Activation('relu'))
 
     model.add(Dense(num_actions))
