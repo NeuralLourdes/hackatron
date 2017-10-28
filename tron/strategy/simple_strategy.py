@@ -14,5 +14,7 @@ class SimpleStrategy(player_game.PlayerStrategy):
         #game.ACTION_TURN_LEFT
         #game.ACTION_TURN_RIGHT
         #game.ACTION_STRAIGHT
-        pos = game.players
+        player = game.players[self.player_idx]
+        pos = player.pos
+
         return self.default_action
