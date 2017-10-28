@@ -123,28 +123,38 @@ class TronGame(object):
 
     def step(self, action):
         s = SimpleStrategy(1)
+
         self.set_action(0, action)
         self.set_action(1, s.get_action(self, self.get_game_state_as_class()))
+
+        #player = [p for p, played in zip(range(len(self.players)), self.has_played) if not played][0]
+        #
         #player = [p for p, played in zip(range(len(self.players)), self.has_played) if not played][0]
         #self.set_action(player, action)
 
-        reward = 0
-        if action in [ACTION_TURN_RIGHT, ACTION_TURN_LEFT]:
-            reward += 1
+        def get_reward(reward_turns = True, reward_aliveness = True):
+            reward = 0
+            if reward_turns:
+                if action in [ACTION_TURN_RIGHT, ACTION_TURN_LEFT]:
+                    reward += 0.5
 
-        if np.any(self.player_lost):
-            reward -= -20
-        else:
-            reward += 3
+            if reward_aliveness and self.tick % 2 == 0:
+                reward += 2
+
+            return reward
+
+        reward = get_reward()
 
         info = {}
 
         game_over = self.game_over()
+        game_field = self.get_decomposed_game_field()
 
-        if game_over:
+        if game_over and np.all(self.has_played):
+            #reward += self.tick
+            reward += 10 if not self.player_lost[0] else 0
             self.reset(True)
 
-        game_field = self.get_decomposed_game_field()
         #game_field = np.copy(self.game_field)
         #game_field[game_field> 0] = 1
         #game_field = game_field_copy

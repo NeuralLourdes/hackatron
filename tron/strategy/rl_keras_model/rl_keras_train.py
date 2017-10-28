@@ -38,7 +38,7 @@ def get_model(env, num_layers = 3, layer_size = 128, window_lenght = 1):
     memory = SequentialMemory(limit=100000, window_length=window_lenght)
 
     dqn = DQNAgent(model=model, nb_actions=num_actions, memory=memory, nb_steps_warmup=10000,
-    target_model_update=1, policy=policy, enable_dueling_network=True)
+    target_model_update=.5, policy=policy, enable_dueling_network=True)
     dqn.compile(Adam(lr=1e-3), metrics=['mae'])
     return dqn
 
