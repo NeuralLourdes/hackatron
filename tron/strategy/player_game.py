@@ -36,14 +36,11 @@ class PlayerGame(object):
         game_state = self.game.get_game_state_as_class()
         if game_state.game_over:
             print('Warning: called PlayerGame.evaluate when the game is already over!')
-
             return
 
         for player_idx, strategy in enumerate(self.strategies):
-            start_time = time.time()
             action = strategy.get_action(self.game, game_state, events)
             self.game.set_action(player_idx, action)
-            print('Strategy ({}) took {:.2f} seconds'.format(type(strategy).__name__, time.time() - start_time))
 
         if self.game.game_over():
             for strategy in self.strategies:

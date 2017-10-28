@@ -3,19 +3,21 @@
 import os, pygame
 from pygame import locals
 import tron
-import time
+from time import time
 import sys
+import numpy as np
 
 from strategy.human_player_strategy import HumanPlayerStrategy
 from strategy.random_strategy import RandomStrategy
 from strategy.simple_strategy import SimpleStrategy
 from strategy.player_game import PlayerGame
+from strategy.rl_strategy import RLStrategy
 
 def get_args():
     import argparse
     parser = argparse.ArgumentParser(description='Tron game')
-    parser.add_argument('--width', type=int, default = 100)
-    parser.add_argument('--height', type=int, default = 100)
+    parser.add_argument('--width', type=int, default = 30)
+    parser.add_argument('--height', type=int, default = 30)
     parser.add_argument('--player_dim', type=float, default=4)
     parser.add_argument('--timeout', type=int, default = 50)
     args = parser.parse_args()
@@ -32,10 +34,13 @@ def has_quit(events):
 def main():
     args = get_args()
 
-    def init_game(random = True):
+    def init_game(random = False):
+        def get_random_orientation():
+            return np.random.choice([0, 90, 180, 270])
         game = tron.TronGame(width = args.width, height = args.height)
         if random:
             game.set_player_pos(game.get_random_pos(), game.get_random_pos())
+            game.set_player_orientation([get_random_orientation(), get_random_orientation()])
         return game
 
     game = init_game()
@@ -43,8 +48,11 @@ def main():
     strategy_1 = HumanPlayerStrategy(player_idx=0)
     strategy_2 = HumanPlayerStrategy(player_idx=1)
 
-    strategy_1 = SimpleStrategy(0)
-    strategy_2 = SimpleStrategy(1)
+    #strategy_1 = SimpleStrategy(0)
+    #strategy_2 = SimpleStrategy(1)
+
+    strategy_1 = RLStrategy(0)
+    strategy_2 = RLStrategy(1)
     strategies = [strategy_1, strategy_2]
 
     player_game = PlayerGame(game, strategies)
@@ -78,6 +86,7 @@ def main():
             pygame.quit()
             sys.exit()
 
+
         player_game.evaluate(events)
 
         for y, row in enumerate(game.get_game_state_as_class().game_field):
@@ -85,8 +94,13 @@ def main():
                 if cell != 0:
                     pygame.draw.rect(background, PLAYER_COLORS[cell - 1], (x * args.player_dim, y * args.player_dim, args.player_dim, args.player_dim))
 
+        wants_to_restart = False
+        for event in events:
+            if event.type == locals.KEYDOWN and event.key == locals.K_r:
+                wants_to_restart = True
+
         # Restart game
-        if game.game_over():
+        if game.game_over() or wants_to_restart:
             game_state = game.get_game_state_as_class()
             for player_idx, strategy in enumerate(strategies):
                 strategy.on_game_over(game, game_state)

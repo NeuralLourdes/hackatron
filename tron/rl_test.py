@@ -1,0 +1,64 @@
+from strategy.reinforcement_learning.rl_strategy_train import *
+import tron
+import pickle
+
+env = tron.TronGame(width = 30, height = 30)
+
+STRATEGY_FILE = 'tmp/rl_strategy.npy'
+
+def calculate_reward(player_idx):
+    return env.tick + (0 if env.player_lost[player_idx] else 20)
+
+USE_CHECK_POINT = True
+NUM_GAMES = 1000
+
+if USE_CHECK_POINT:
+    with open(STRATEGY_FILE, 'rb') as f:
+        RLS = pickle.load(f)
+else:
+    RLS = [QLearningTable(actions=list(env.get_available_actions())) for x in range(2)]
+
+
+try:
+    for games in range(NUM_GAMES):
+        # initial observation
+        observation = env.game_field
+
+        env.reset()
+        while True:
+            # fresh env
+            actions = []
+            for player_idx, RL in enumerate(RLS):
+                # RL choose action based on observation
+                action = RL.choose_action(str(observation))
+                actions.append(action)
+                env.set_action(player_idx, action)
+
+            observation_ = env.game_field
+            for player_idx, (RL, action) in enumerate(zip(RLS, actions)):
+                reward = calculate_reward(player_idx)
+
+                # RL learn from this transition
+                RL.learn(str(observation), action, reward, str(observation_))
+
+            # swap observation
+            observation = observation_
+
+            # break while loop when end of this episode
+            if env.game_over():
+                break
+        print('({:4}/{}) {} ticks'.format(games + 1, NUM_GAMES, env.tick))
+except:
+    print('Saving strategy')
+    with open(STRATEGY_FILE, 'wb') as f:
+        pickle.dump(RLS, f)
+
+# Play test game
+for i in range(2):
+    env.reset()
+    while not env.game_over():
+        game_state = env.game_field
+        for player_idx, RL in enumerate(RLS):
+            action = RL.choose_action(str(game_state))
+            env.set_action(player_idx, action)
+    print(env)

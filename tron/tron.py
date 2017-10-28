@@ -13,7 +13,8 @@ ACTION_TURN_RIGHT = 1
 ACTION_STRAIGHT = 2
 
 
-class Player(object):
+class Player():
+
     def __init__(self, name='default', pos=Point(0, 0), orientation=180, body=None):
         self.name = name
         self.x, self.y = pos
@@ -62,8 +63,6 @@ class Player(object):
 
         self.orientation = (self.orientation + factor) % 360
 
-        self.add_to_body()
-
         if self.orientation == 0:
             self.y -= 1
         elif self.orientation == 90:
@@ -73,6 +72,9 @@ class Player(object):
         else:
             self.x -= 1
 
+
+def is_same_point(pos1, pos2):
+    return pos1.x == pos2.x and pos1.y == pos2.y
 
 
 
@@ -88,8 +90,8 @@ class TronGame(object):
         self.reset()
 
     def reset(self):
-        x_offset = 10
-        y_offset = 10
+        x_offset = 5
+        y_offset = 5
         self.players = [Player('P1', Point(x_offset, y_offset), orientation=180), Player('P2', Point(self.width - x_offset - 1, self.height - y_offset - 1), orientation=0)]
         self.has_played = [False, False]
         self.player_lost = [False, False]
@@ -99,6 +101,15 @@ class TronGame(object):
     def set_player_pos(self, player_1_pos, player_2_pos):
         for player, pos in zip(self.players, [player_1_pos, player_2_pos]):
             player.set_pos(pos)
+
+    def set_player_orientation(self, player_orientations):
+        for player, orientation in zip(self.players, player_orientations):
+            player.orientation = orientation
+
+    def step(self, action):
+        reward = 1
+        observation = self.game_field
+        return observation, reward, self.game_over()
 
     def set_action(self, player, action):
         if self.has_played[player]:
@@ -114,11 +125,12 @@ class TronGame(object):
         self.has_played[player] = True
 
         if np.all(self.has_played):
+            for player in self.players:
+                player.add_to_body()
+
             self.get_game_field()
             self.check_player_lost_status()
             self.has_played = [False, False]
-            for player in self.players:
-                player.add_to_body()
             self.tick += 1
 
 
@@ -131,23 +143,47 @@ class TronGame(object):
         return self.game_field
 
     def check_player_lost_status(self):
-        collision_found = False
         for player_idx, player in enumerate(self.players):
-            player_lost = False
+            pos = player.get_position()
+            if self.check_pos_is_invalid(*pos):
+                self.player_lost[player_idx] = True
+                break
+
+            other_player = self.players[(player_idx + 1) % 2]
+            for other_pos in other_player.body + player.body[:-1]:
+                if is_same_point(pos, other_pos):
+                    self.player_lost[player_idx] = True
+                    break
+
+        return np.any(self.player_lost)
+
+    def check_player_lost_status_x(self):
+        for player_idx, player in enumerate(self.players):
+
             pos = player.get_position()
             x, y = pos
             position_invalid = self.check_pos_is_invalid(x, y)
-            if position_invalid or self.game_field[y][x] != 0:
-                player_lost = True
-            # other_player = self.players[(player_idx + 1) % 2]
-            #for x, y in other_player.body + player.body[:-1]:
-            #    if player.x == x and player.y == y:
-            #        collision_found_ = True
-            #        break
-            if player_lost:
-                collision_found = True
+
+            if position_invalid:
                 self.player_lost[player_idx] = True
-        return collision_found
+                break
+
+            cell_value = self.game_field[y][x]
+
+            if cell_value == 0:
+                continue
+
+            if cell_value != player_idx + 1:
+                self.player_lost[player_idx] = True
+                break
+
+            last_player_pos = player.body[-1]
+            for body_pos in player.body[:-1]:
+                if is_same_point(pos, body_pos):
+                    self.player_lost[player_idx] = True
+                    break
+
+        return np.any(self.player_lost)
 
     def get_player_pos(self):
         return [player.get_position() for player in self.players]
@@ -157,11 +193,7 @@ class TronGame(object):
 
 
     def check_pos_is_invalid(self, x, y):
-        res = y < 0 or y >= self.height or x >= self.width or x < 0
-        return res
-
-    def get_available_actions(self):
-        return [ACTION_TURN_LEFT, ACTION_TURN_RIGHT, ACTION_STRAIGHT]
+        return y < 0 or y >= self.height or x >= self.width or x < 0
 
     def get_player_positions_flat(self, check_valid = True):
         player_bodies = []
@@ -170,10 +202,8 @@ class TronGame(object):
 
         return player_bodies
 
-
     def get_game_state(self):
         return self.game_over(), self.game_field, self.get_player_pos(), self.get_player_orientation(), self.player_lost
-        #return self.game_over(), self.get_game_field(), self.get_player_pos(), self.get_player_orientation(), self.player_lost
 
     def get_game_state_flattened(self):
         return np.array(self.get_game_state()).flatten()
@@ -198,6 +228,10 @@ class TronGame(object):
     def game_over(self):
         player_has_lost = np.any(self.player_lost)
         return player_has_lost
+
+
+    def get_available_actions(self):
+        return [ACTION_TURN_LEFT, ACTION_TURN_RIGHT, ACTION_STRAIGHT]
 
     def __str__(self):
         out = 'Tick: {}\n'.format(self.tick)
