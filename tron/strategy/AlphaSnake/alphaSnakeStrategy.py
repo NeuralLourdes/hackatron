@@ -16,36 +16,48 @@ class alphaSnakeStrategy(player_game.PlayerStrategy):
         super(alphaSnakeStrategy, self).__init__(player_idx)
 
         self.game_stat_buffer=[]
-        keep_prob = tf.placeholder(tf.float32)
-        input = tf.placeholder(tf.float32, [None, height, width, 4])
-        output = tf.placeholder(tf.float32, [None, 2])
-        self.model_out_with_softmax_tensor, self.cost_tensor = gspn.get_prediction_network(input, output, keep_prob,"fads"+str(player_idx))
+        self.keep_prob_tensor = tf.placeholder(tf.float32)
+        self.input_tensor = tf.placeholder(tf.float32, [None, height, width, 4])
+        self.output_tensor = tf.placeholder(tf.float32, [None, 2])
+        self.model_out_with_softmax_tensor, self.cost_tensor = gspn.get_prediction_network(self.input_tensor, self.output_tensor, self.keep_prob_tensor,"ASPN"+str(player_idx))
         self.optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.cost_tensor)
 
-
-
-
+        self.tf_sess = tf.Session()
+        self.tf_sess.run(tf.global_variables_initializer())
 
 
     def get_action(self, game, game_state, other = None):
         p1pos = game_state.player_pos[self.get_player_idx()]
         p2pos = game_state.player_pos[self.get_enemy_idx()]
-        train_mat = get_training_matrix(game_state.game_field, p1pos, p2pos, self.get_player_idx(), self.enemy_idxself.get_enemy_idx())
+        train_mat = get_training_matrix(game_state.game_field, p1pos, p2pos, self.get_player_idx(), self.get_enemy_idx())
 
+        self.game_stat_buffer.append(train_mat)
 
-
-        self.game_stat_buffer.append(game_state.game_field)
-
-        print(np.shape(train_mat))
+        #print(np.shape(train_mat))
 
         #print(game.get_available_actions())
         return 2
 
+    def train(self, x_train, y_train, x_test, y_test, dropout):
+        batch_training_iters=1
+        for step in range(batch_training_iters):
+            batch_x, batch_y = x_train, y_train
+            self.tf_sess.run(self.optimizer, feed_dict={self.input_tensor: batch_x, self.output_tensor: batch_y, self.keep_prob_tensor: dropout})
+            #cost_val = self.tf_sess.run(self.cost_tensor, feed_dict={x_pretrain: x_train, y_pretrain: y_train, keep_prob: 1.})
+            #print("TestCost: ", cost_val)
+        print("trained")
+
     def on_game_over(self, game, game_state):
 
-        #collect data
+        print("over")
 
-        pass
+        train_inp = self.game_stat_buffer
+        train_outp = np.ones((len(self.game_stat_buffer),2))*(self.player_has_won(), self.enemy_has_won())
+
+        self.train(train_inp, train_outp, None, None, 0.9)
+
+        self.game_stat_buffer=[]
+
 
     def game_is_over(self, game):
         return game.game_over()

@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 
-def get_prediction_network_head(input,output,keep_prob,name_pref):
+def get_prediction_network_head(input,keep_prob,name_pref):
     conv1 = tf.layers.conv2d(inputs=input, filters=30, kernel_size=[11, 11], strides=[4, 4], padding="same", activation=tf.nn.relu, name=name_pref+"alx_conv1")# 94
     pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[3, 3], strides=1, name=name_pref+"alx_pool1")
     drop1 = tf.layers.dropout(inputs=pool1, rate=keep_prob, name=name_pref+"alx_drop1")
@@ -15,9 +15,13 @@ def get_prediction_network_head(input,output,keep_prob,name_pref):
 
 
 def get_prediction_network(input, output, keep_prob, name_pref):
-    nn=get_prediction_network_head(input, output, keep_prob, name_pref)
-    out = tf.layers.dense(inputs=nn, units=2, name=name_pref + "alx_dense1")
-    return tf.losses.softmax_cross_entropy(out),
+    nn=get_prediction_network_head(input, keep_prob, name_pref)
+    out = tf.layers.dense(inputs=nn, units=2, name=name_pref + "output_layer")
+
+    model_out = tf.nn.softmax(out)
+    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=out, labels=output))
+
+    return model_out, cost
 
     #digit_blocks = []
     #digit_block_costs = []
