@@ -9,6 +9,7 @@ import sys
 from strategy.human_player_strategy import HumanPlayerStrategy
 from strategy.random_strategy import RandomStrategy
 from strategy.simple_strategy import SimpleStrategy
+from strategy.player_game import PlayerGame
 
 def get_args():
     import argparse
@@ -31,7 +32,6 @@ def has_quit(events):
 def main():
     args = get_args()
 
-
     def init_game(random = True):
         game = tron.TronGame(width = args.width, height = args.height)
         if random:
@@ -42,15 +42,18 @@ def main():
 
     strategy_1 = HumanPlayerStrategy(player_idx=0)
     strategy_2 = HumanPlayerStrategy(player_idx=1)
-    strategy_2 = SimpleStrategy(1, tron.ACTION_STRAIGHT)
+    
+    strategy_1 = SimpleStrategy(0)
+    strategy_2 = SimpleStrategy(1)
     strategies = [strategy_1, strategy_2]
 
+    player_game = PlayerGame(game, strategies)
     # GUI
 
     pygame.init()
     screen = pygame.display.set_mode((int(args.width * args.player_dim), int(args.height * args.player_dim)))
     pygame.display.set_caption('Tron')
-    pygame.mouse.set_visible(1)
+    pygame.mouse.set_visible(0)
     clock = pygame.time.Clock()
 
     def get_background():
@@ -65,18 +68,17 @@ def main():
 
     going = True
     while going:
-        clock.tick(60)
+        clock.tick(1000)
 
         events = pygame.event.get()
+        if events is None:
+            events = []
 
         if has_quit(events):
             pygame.quit()
             sys.exit()
 
-        game_state = game.get_game_state_as_class()
-        for player_idx, strategy in enumerate(strategies):
-            action = strategy.get_action(game, game_state, events)
-            game.set_action(player_idx, action)
+        player_game.evaluate(events)
 
         for y, row in enumerate(game.get_game_state_as_class().game_field):
             for x, cell in enumerate(row):
@@ -92,6 +94,7 @@ def main():
             pygame.time.wait(500)
             background = get_background()
             game = init_game()
+            player_game.game = game
             continue
 
         screen.blit(background, (0, 0))
