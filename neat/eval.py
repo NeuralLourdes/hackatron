@@ -158,7 +158,7 @@ def run(config_file):
     p.add_reporter(neat.Checkpointer(5))
 
     # Run for up to 300 generations.
-    generations = 3
+    generations = 10
     winner = p.run(eval_genomes, generations)
 
     # Display the winning genome.
