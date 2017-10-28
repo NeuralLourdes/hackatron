@@ -64,12 +64,11 @@ def evolve(game, net1, net2):
     gameMap = np.array(gameState[1])
 
     #print(gameState)
-    gameMap = transform_map(gameMap, gameState[2], gameState[3])
+    visualMap = transform_map(gameMap, gameState[2], gameState[3])
 
     # get decisions
-    gameMap = gameMap.flatten()
-    output1 = net1.activate(gameMap)
-    output2 = net2.activate(gameMap)
+    output1 = net1.activate(visualMap[0].flatten())
+    output2 = net2.activate(visualMap[0].flatten())
 
     def pick(x):
         return {
