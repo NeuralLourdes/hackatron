@@ -48,8 +48,6 @@ def run(config_file):
     
     NN_IO.save(winner_net, "beste")
 
-    #p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
-    #pop.run(eval_genomes, 10)
 
 
 if __name__ == '__main__':

@@ -53,19 +53,35 @@ def transform_map(gameMapRaw, heads, rotation):
     visual_map2 = extract(gameMapRaw, 2, head2, rotation[1])
 
     return [visual_map1, visual_map2]
+
+def calc_next_action(game, player, net):
+    gameState = game.get_game_state()
+    gameMap = np.array(gameState[1])
+
+    visualMap = transform_map(gameMap, gameState[2], gameState[3])
+
+    # get decisions
+    output = net.activate(visualMap[player].flatten())
+
+    def pick(x):
+        return {
+            0: tron.ACTION_STRAIGHT,
+            1: tron.ACTION_TURN_RIGHT,
+            2: tron.ACTION_TURN_LEFT,
+        }[x]
+
+    return pick(np.argmax(output))
     
 
 def evolve(game, net1, net2):
     gameState = game.get_game_state()
     gameMap = np.array(gameState[1])
 
-    #print(gameState)
     visualMap = transform_map(gameMap, gameState[2], gameState[3])
-    #visualMap = [np.zeros([5,5]), np.zeros([5,5])]
 
     # get decisions
     output1 = net1.activate(visualMap[0].flatten())
-    output2 = net2.activate(visualMap[0].flatten())
+    output2 = net2.activate(visualMap[1].flatten())
 
     def pick(x):
         return {
