@@ -14,7 +14,7 @@ from strategy.player_game import PlayerGame
 from strategy.rl_strategy import RLStrategy
 from strategy.rl_keras_strategy import RLKerasStrategy
 #from strategy.beste_ki import Beste_ki
-from strategy.neat.neat_strategy import NEATStrategy
+#from strategy.neat.neat_strategy import NEATStrategy
 
 def get_args():
     import argparse
@@ -57,15 +57,16 @@ def main():
 
     strategy_1 = RLStrategy(0)
     strategy_2 = RLStrategy(1)
-    #strategy_1 = SimpleStrategy(0)
-    #strategy_2 = SimpleStrategy(1)
+    strategy_1 = SimpleStrategy(0)
+    strategy_2 = SimpleStrategy(1)
     #strategy_1 = Beste_ki(0)
     #strategy_2 = Beste_ki(1)
+    
     strategy_1 = RLKerasStrategy(0, game)
-    strategy_2 = RLKerasStrategy(0, game)
+    #strategy_2 = RLKerasStrategy(0, game)
 
-    strategy_1 = NEATStrategy(0)
-    strategy_2 = NEATStrategy(1)
+    #strategy_1 = NEATStrategy(0)
+    #strategy_2 = NEATStrategy(1)
 
     strategies = [strategy_1, strategy_2]
 

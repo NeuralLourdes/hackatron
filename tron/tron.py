@@ -1,6 +1,7 @@
 import numpy as np
 import collections
 import copy
+from strategy.simple_strategy import SimpleStrategy
 
 GameState = collections.namedtuple('GameState', ['game_over', 'game_field', 'player_pos', 'player_orientation', 'player_lost'])
 Point = collections.namedtuple('Point', ['x', 'y'])
@@ -106,8 +107,11 @@ class TronGame(object):
         return self.game_field
 
     def step(self, action):
-        player = [p for p, played in zip(range(len(self.players)), self.has_played) if not played][0]
-        self.set_action(player, action)
+        s = SimpleStrategy(1)
+        self.set_action(0, action)
+        self.set_action(1, s.get_action(self, self.get_game_state_as_class()))
+        #player = [p for p, played in zip(range(len(self.players)), self.has_played) if not played][0]
+        #self.set_action(player, action)
 
         if np.any(self.player_lost):
             reward = -5
