@@ -2,17 +2,38 @@ import tensorflow as tf
 import numpy as np
 
 def get_prediction_network_head(input,keep_prob,name_pref):
-    conv1 = tf.layers.conv2d(inputs=input, filters=30, kernel_size=[11, 11], strides=[4, 4], padding="same", activation=tf.nn.relu, name=name_pref+"alx_conv1")# 94
+    conv1 = tf.layers.conv2d(inputs=input, filters=100, kernel_size=[11, 11], strides=[2, 2], padding="same", activation=tf.nn.relu, name=name_pref+"alx_conv1")# 94
     pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[3, 3], strides=1, name=name_pref+"alx_pool1")
     drop1 = tf.layers.dropout(inputs=pool1, rate=keep_prob, name=name_pref+"alx_drop1")
     norm1 = tf.layers.batch_normalization(drop1, name=name_pref+"alx_norm1")
+
+    conv2 = tf.layers.conv2d(inputs=norm1, filters=20, kernel_size=[5, 5], strides=[2, 2], padding="same", activation=tf.nn.relu, name=name_pref+"alx_conv2")# 256
+    pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[3, 3], strides=1, name=name_pref+"alx_pool2")
+    drop2 = tf.layers.dropout(inputs=pool2, rate=keep_prob, name=name_pref+"alx_drop2")
+    norm2 = tf.layers.batch_normalization(drop2, name=name_pref+"alx_norm2")
+
+    r1 = tf.contrib.layers.flatten(norm2)
+    dense1 = tf.layers.dense(inputs=r1, units=4000, name=name_pref+"alx_dense1")
+    dense2 = tf.layers.dense(inputs=dense1, units=2000, name=name_pref+"alx_dense2")
+    dense3 = tf.layers.dense(inputs=dense2, units=1000, name=name_pref + "alx_dense3")
+    dense4 = tf.layers.dense(inputs=dense3, units=100, name=name_pref + "alx_dense4")
+    return dense4
+
+
+    '''
+    conv1 = tf.layers.conv2d(inputs=input, filters=30, kernel_size=[11, 11], strides=[2, 2], padding="same", activation=tf.nn.relu, name=name_pref+"alx_conv1")# 94
+    pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[3, 3], strides=1, name=name_pref+"alx_pool1")
+    drop1 = tf.layers.dropout(inputs=pool1, rate=keep_prob, name=name_pref+"alx_drop1")
+    norm1 = tf.layers.batch_normalization(drop1, name=name_pref+"alx_norm1")
+
+
 
     r1 = tf.contrib.layers.flatten(norm1)
     dense1 = tf.layers.dense(inputs=r1, units=8000, name=name_pref+"alx_dense1")
     dense2 = tf.layers.dense(inputs=dense1, units=4000, name=name_pref+"alx_dense2")
 
     return dense2
-
+    '''
 
 def get_prediction_network(input, output, keep_prob, name_pref):
     nn=get_prediction_network_head(input, keep_prob, name_pref)

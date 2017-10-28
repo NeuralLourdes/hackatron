@@ -42,9 +42,15 @@ class Searchtree:
 
         #print("Found candidates: ", len(candidates), " counter ", counter, " took ", time.time()-timestamp)
         timestamp = time.time()
+        candidates = self.filter_invalid_candidates(candidates)
+        if len(candidates) ==0:
+            return 0
         action = self.determine_winner(candidates)
         #print("Evaluating took ",time.time()-timestamp)
         return action
+
+    def filter_invalid_candidates(self, candidates):
+        return [candidate for candidate in candidates if not candidate[0].player_lost[self.own_index]]
 
     def determine_winner(self, candidates):
 

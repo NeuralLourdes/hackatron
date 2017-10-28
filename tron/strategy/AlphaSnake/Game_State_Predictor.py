@@ -11,13 +11,13 @@ import pickle
 import time
 import zipfile
 
-learning_rate = 0.000001
+learning_rate = 0.00001
 
 train_every_x_losses = 1
 print_every_x_frames = 10
-reset_data_after_training = True
+reset_data_after_training = False
 debug_mode=True
-batch_size=5
+batch_size=10
 
 class Game_State_Predictor:
 
@@ -61,12 +61,12 @@ class Game_State_Predictor:
             return x, y
 
     def train(self, x_train, y_train, x_test, y_test, dropout):
-        batch_training_iters=5
+        batch_training_iters=int(len(x_train)/5)
         loss = None
         for step in range(batch_training_iters):
             batch_x, batch_y = self.get_batch(x_train, y_train, batch_size)
 
-            loss = self.tf_sess.run(self.optimizer, feed_dict={self.input_tensor: batch_x, self.output_tensor: batch_y, self.keep_prob_tensor: dropout})
+            _, loss = self.tf_sess.run([self.optimizer,self.cost_tensor], feed_dict={self.input_tensor: batch_x, self.output_tensor: batch_y, self.keep_prob_tensor: dropout})
             print(loss)
 
         print("trained player with loss ", loss)
@@ -158,6 +158,6 @@ class Game_State_Predictor:
                 self.reset_counter=0
                 self.train(self.game_state_input_buffer, self.game_state_output_buffer, None, None, 0.9)
                 if reset_data_after_training:
-                    self.save_data(self.game_state_input_buffer, self.game_state_output_buffer)
+                    #self.save_data(self.game_state_input_buffer, self.game_state_output_buffer)
                     self.game_state_output_buffer = []
                     self.game_state_input_buffer = []
