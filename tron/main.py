@@ -91,7 +91,6 @@ def main():
             game_state = game.get_game_state_as_class()
             for player_idx, strategy in enumerate(strategies):
                 strategy.on_game_over(game, game_state)
-
             pygame.time.wait(500)
             background = get_background()
             game = init_game()

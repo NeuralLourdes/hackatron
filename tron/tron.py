@@ -1,5 +1,6 @@
 import numpy as np
 import collections
+import copy
 
 GameState = collections.namedtuple('GameState', ['game_over', 'game_field', 'player_pos', 'player_orientation', 'player_lost'])
 Point = collections.namedtuple('Point', ['x', 'y'])
@@ -146,6 +147,17 @@ class TronGame(object):
 
     def get_game_state_as_class(self):
         return GameState(*self.get_game_state())
+
+    def clone(self):
+        new_game = TronGame()
+        new_game.width = self.width
+        new_game.height = self.height
+        new_game.players = copy.deepcopy(self.players)
+        new_game.has_played = np.copy(self.has_played)
+        new_game.player_lost = np.copy(self.player_lost)
+        new_game.tick = self.tick
+        new_game.game_field = None
+        return new_game
 
     def game_over(self):
         self.check_player_lost_status()
