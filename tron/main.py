@@ -4,6 +4,7 @@ import os, pygame
 from pygame import locals
 import tron
 import time
+import sys
 
 from strategy.human_player_strategy import HumanPlayerStrategy
 from strategy.random_strategy import RandomStrategy
@@ -17,6 +18,14 @@ def get_args():
     parser.add_argument('--timeout', type=int, default = 50)
     args = parser.parse_args()
     return args
+
+def has_quit(events):
+    for event in events:
+        if event.type == pygame.QUIT:
+            return True
+        if event.type == locals.KEYDOWN and event.key == locals.K_ESCAPE:
+            return True
+    return False
 
 def main():
     args = get_args()
@@ -58,6 +67,13 @@ def main():
         clock.tick(60)
 
         events = pygame.event.get()
+
+        if has_quit(events):
+            pygame.quit()
+            sys.exit()
+
+
+
         game_state = game.get_game_state_as_class()
         for player_idx, strategy in enumerate(strategies):
             action = strategy.get_action(game, game_state, events)
@@ -68,6 +84,7 @@ def main():
             for x, cell in enumerate(row):
                 if cell != 0:
                     pygame.draw.rect(background, PLAYER_COLORS[cell - 1], (x * args.player_dim, y * args.player_dim, args.player_dim, args.player_dim))
+
 
         # Restart game
         if game.game_over():
