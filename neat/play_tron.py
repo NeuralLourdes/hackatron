@@ -137,3 +137,45 @@ def eval_genomes(genomes, config):
                 elif fight == 2:
                     genome1.fitness -= 1
                     genome2.fitness += 1
+
+
+def eval_genome_vs_the_best(genome, config):
+    
+    fitness = 0.0
+
+    #for genome_id1, genome1 in genomes:
+    #    for genome_id2, genome2 in genomes:
+    #        if genome_id1 > genome_id2:
+
+    net1 = neat.nn.FeedForwardNetwork.create(genome, config)
+    #net2 = neat.nn.FeedForwardNetwork.create(genome2, config)
+    
+    fight = game_outcome(net1, net1)
+
+    if fight == 1:
+        fitness += 1
+    elif fight == 2:
+        fitness -= 1
+
+    return fitness
+
+class genome_parallel:
+    def __init__(self, best_net):
+        self.best_net = best_net
+
+    def eval_fn(self, genome, config):
+        fitness = 0.0
+
+        net1 = neat.nn.FeedForwardNetwork.create(genome, config)
+        net2 = neat.nn.FeedForwardNetwork.create(self.best_net, config)
+        
+        fight = game_outcome(net1, net2)
+
+        if fight == 1:
+            fitness += 1
+        elif fight == 2:
+            fitness -= 1
+
+        return fitness
+
+
