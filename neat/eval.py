@@ -7,7 +7,7 @@ import random
 
 import tron
 import play_tron
-import save_load_NN
+import NN_IO
 
 def run(config_file):
     # Load configuration.
