@@ -18,14 +18,16 @@ class Player():
     def __init__(self, name='default', pos=Point(0, 0), orientation=180, body=None):
         self.name = name
         self.x, self.y = pos
+        self.pos = pos
         self.orientation = orientation
         self.body = body if body is not None else []
 
     def get_position(self):
-        return Point(self.x, self.y)
+        return self.pos
 
     def set_pos(self, pos):
         self.x, self.y = pos
+        self.pos = pos
 
     def add_to_body(self, pos=None):
         self.body.append(self.get_position() if pos is None else pos)
@@ -72,6 +74,8 @@ class Player():
         else:
             self.x -= 1
 
+        self.pos = Point(self.x, self.y)
+
     def clone(self):
         copied = Player(self.name, self.get_position(), self.orientation, list(self.body))
         return copied
@@ -108,11 +112,6 @@ class TronGame(object):
         for player, orientation in zip(self.players, player_orientations):
             player.orientation = orientation
 
-    def step(self, action):
-        reward = 1
-        observation = self.game_field
-        return observation, reward, self.game_over()
-
     def set_action(self, player, action):
         if self.has_played[player]:
             print('Warning: player {} already did an action this tick. Ignoring'.format(player))
@@ -127,14 +126,41 @@ class TronGame(object):
         self.has_played[player] = True
 
         if np.all(self.has_played):
-            for player in self.players:
-                player.add_to_body()
+            self.check_for_player_pos()
+            if not np.any(self.player_lost):
 
-            self.get_game_field()
-            self.check_player_lost_status()
-            self.has_played = [False, False]
+                self.check_collisions()
+
+                # Add position to body
+                #for player in self.players:
+                #    player.add_to_body()
+
+                # Write player positions in game field
+                self.update_game_field()
+                #self.check_player_lost_status()
+
+                self.has_played = [False, False]
             self.tick += 1
 
+    def check_collisions(self):
+        for player_idx, player in enumerate(self.players):
+            x, y = player.get_position()
+
+            if self.check_pos_is_invalid(x, y) or self.game_field[y, x] != 0:
+                self.player_lost[player_idx] = True
+
+    def update_game_field(self):
+        for player_idx, player in enumerate(self.players):
+            pos = player.get_position()
+            if not self.check_pos_is_invalid(*pos):
+                self.game_field[pos.y, pos.x] = player_idx + 1
+
+    def check_for_player_pos(self):
+        for player_idx, player in enumerate(self.players[:-1]):
+            other_player = self.players[player_idx + 1]
+            if is_same_point(player.get_position(), other_player.get_position()):
+                self.player_lost[player_idx] = True
+                self.player_lost[player_idx + 1] = True
 
     def get_game_field(self):
         self.game_field = np.zeros((self.height, self.width), dtype=np.int8)

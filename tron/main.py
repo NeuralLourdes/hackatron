@@ -17,10 +17,11 @@ from strategy.rl_strategy import RLStrategy
 def get_args():
     import argparse
     parser = argparse.ArgumentParser(description='Tron game')
-    parser.add_argument('--width', type=int, default = 30)
-    parser.add_argument('--height', type=int, default = 30)
-    parser.add_argument('--player_dim', type=float, default=4)
-    parser.add_argument('--timeout', type=int, default = 50)
+    parser.add_argument('--width', type=int, default = 100)
+    parser.add_argument('--height', type=int, default = 100)
+    parser.add_argument('--player_dim', type=int, default=10)
+    parser.add_argument('--skip_frames', type=int, default=10)
+    parser.add_argument('--timeout', type=int, default = 10)
     args = parser.parse_args()
     return args
 
@@ -49,11 +50,11 @@ def main():
     strategy_1 = HumanPlayerStrategy(player_idx=0)
     strategy_2 = HumanPlayerStrategy(player_idx=1)
 
-    #strategy_1 = SimpleStrategy(0)
-    #strategy_2 = SimpleStrategy(1)
+    strategy_1 = SimpleStrategy(0)
+    strategy_2 = SimpleStrategy(1)
 
-    strategy_1 = RLStrategy(0)
-    strategy_2 = RLStrategy(1)
+    #strategy_1 = RLStrategy(0)
+    #strategy_2 = RLStrategy(1)
     #strategy_1 = SimpleStrategy(0)
     #strategy_2 = SimpleStrategy(1)
     #strategy_1 = Beste_ki(0)
@@ -79,8 +80,20 @@ def main():
 
     PLAYER_COLORS = [(255, 0, 0), (0, 0, 255)]
 
+    def draw_game():
+        for y, row in enumerate(game.get_game_state_as_class().game_field):
+            for x, cell in enumerate(row):
+                if cell != 0:
+                    pygame.draw.rect(background, PLAYER_COLORS[cell - 1], (x * args.player_dim, y * args.player_dim, args.player_dim, args.player_dim))
+
+        screen.blit(background, (0, 0))
+        pygame.display.flip()
+
+
     going = True
+    counter = 0
     while going:
+        start_time = time()
         clock.tick(1000)
 
         events = pygame.event.get()
@@ -91,13 +104,8 @@ def main():
             pygame.quit()
             sys.exit()
 
-
         player_game.evaluate(events)
 
-        for y, row in enumerate(game.get_game_state_as_class().game_field):
-            for x, cell in enumerate(row):
-                if cell != 0:
-                    pygame.draw.rect(background, PLAYER_COLORS[cell - 1], (x * args.player_dim, y * args.player_dim, args.player_dim, args.player_dim))
 
         wants_to_restart = False
         for event in events:
@@ -106,6 +114,7 @@ def main():
 
         # Restart game
         if game.game_over() or wants_to_restart:
+            draw_game()
             game_state = game.get_game_state_as_class()
             for player_idx, strategy in enumerate(strategies):
                 strategy.on_game_over(game, game_state)
@@ -115,8 +124,10 @@ def main():
             player_game.game = game
             continue
 
-        screen.blit(background, (0, 0))
-        pygame.display.flip()
+        if counter % args.skip_frames == 0:
+            draw_game()
+            #sys.stdout.write('\r{}'.format())
+        counter += 1
 
     pygame.quit()
 
