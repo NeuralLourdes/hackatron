@@ -15,7 +15,7 @@ class alphaSnakeStrategy(player_game.PlayerStrategy):
     def __init__(self, player_idx, width, height):
         super(alphaSnakeStrategy, self).__init__(player_idx)
 
-        #self.stat
+        self.game_stat_buffer=[]
         keep_prob = tf.placeholder(tf.float32)
         input = tf.placeholder(tf.float32, [None, height, width, 4])
         output = tf.placeholder(tf.float32, [None, 2])
@@ -30,10 +30,11 @@ class alphaSnakeStrategy(player_game.PlayerStrategy):
     def get_action(self, game, game_state, other = None):
         p1pos = game_state.player_pos[self.get_player_idx()]
         p2pos = game_state.player_pos[self.get_enemy_idx()]
-
         train_mat = get_training_matrix(game_state.game_field, p1pos, p2pos, self.get_player_idx(), self.enemy_idxself.get_enemy_idx())
 
 
+
+        self.game_stat_buffer.append(game_state.game_field)
 
         print(np.shape(train_mat))
 
