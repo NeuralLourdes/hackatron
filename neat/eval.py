@@ -34,7 +34,9 @@ def transform_map(gameMapRaw, heads, rotation):
         for y_offset in range(visual_range):
             for x_offset in range(visual_range):
                 x_pos = x_head - int(visual_range)/2 + x_offset
+                x_pos = int(x_pos)
                 y_pos = y_head - int(visual_range)/2 + y_offset
+                y_pos = int(y_pos)
                 if x_pos >= 0 and x_pos < gameSize[0] and y_pos >= 0 and y_pos < gameSize[1]:
                     val = gameMap[y_pos, x_pos]      
 
