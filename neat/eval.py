@@ -4,6 +4,7 @@ import numpy as np
 import os
 import neat
 import random
+from functools import partial
 
 import tron
 import play_tron
@@ -16,24 +17,27 @@ def run(config_file):
                          config_file)
 
     # Create the population, which is the top-level object for a NEAT run.
-    p = neat.Population(config)
+    pop = neat.Population(config)
 
     # Add a stdout reporter to show progress in the terminal.
-    p.add_reporter(neat.StdOutReporter(True))
+    pop.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
-    p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(5))
+    pop.add_reporter(stats)
+    pop.add_reporter(neat.Checkpointer(5))
 
-    # SERIAL # Run for up to 300 generations.
-    generations = 1
-    winner = p.run(play_tron.eval_genomes, generations)
+    generations = 5
 
-    # PARALLEL # Run for up to 300 generations.
-    pe = neat.ParallelEvaluator(4, eval_genome)
-    winner = p.run(pe.evaluate, 300)
+    # SERIAL # 
+    #winner = pop.run(play_tron.eval_genomes, generations)
 
-    # Display the winning genome.
-    #print('\nBest genome:\n{!s}'.format(winner))
+    # PARALLEL # 
+    winner = pop.run(play_tron.eval_genomes, 1) # first run serial
+    
+    for n in range(generations):
+        goenni = play_tron.genome_parallel(winner)
+        pe = neat.ParallelEvaluator(1, goenni.eval_fn)
+        winner = pop.run(pe.evaluate, 1)
+
 
     # Show output of the most fit genome against training data.
     print('\nOutput:')
@@ -44,7 +48,7 @@ def run(config_file):
     NN_IO.save(winner_net, "beste")
 
     #p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
-    #p.run(eval_genomes, 10)
+    #pop.run(eval_genomes, 10)
 
 
 if __name__ == '__main__':
