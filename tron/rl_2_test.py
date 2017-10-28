@@ -19,11 +19,22 @@ def get_args():
     args = parser.parse_args()
     return args
 
+
+def init_game(args):
+    env = tron.TronGame(width=args.width, height=args.width)
+    env.set_player_pos(env.get_random_pos(), env.get_random_pos())
+    env.set_player_orientation([get_random_orientation(), get_random_orientation()])
+    return env
+
+def get_random_orientation():
+    return np.random.choice([0, 90, 180, 270])
+
 def main():
     args = get_args()
     np.random.seed(123)
     try:
-        env = tron.TronGame(width=args.width, height=args.width)
+        env = init_game(args)
+
         dqn = rl_keras_train.get_model(env)
         if not args.disable_loading:
             rl_keras_train.load_progress(dqn)

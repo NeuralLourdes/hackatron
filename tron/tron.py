@@ -97,7 +97,7 @@ class TronGame(object):
         if reset:
             self.reset()
 
-    def reset(self):
+    def reset(self, set_random = False):
         x_offset = 5
         y_offset = 5
         self.players = [Player('P1', Point(x_offset, y_offset), orientation=180), Player('P2', Point(self.width - x_offset - 1, self.height - y_offset - 1), orientation=0)]
@@ -105,6 +105,11 @@ class TronGame(object):
         self.player_lost = [False, False]
         self.tick = 0
         self.game_field = np.zeros((self.height, self.width), dtype=np.int8)
+
+        if set_random:
+            self.set_player_pos(self.get_random_pos(), self.get_random_pos())
+            self.set_player_orientation([self.get_random_orientation(), self.get_random_orientation()])
+
         return self.game_field
 
     def step(self, action):
@@ -122,7 +127,15 @@ class TronGame(object):
         info = {}
         game_field_copy = np.copy(self.game_field)
         game_field_copy[game_field_copy > 0] = 1
-        return self.game_field, reward, self.game_over(), info
+        game_over = self.game_over()
+
+        if game_over:
+            self.reset(True)
+
+        return self.game_field, reward, game_over, info
+
+    def get_random_orientation(self):
+        return np.random.choice([0, 90, 180, 270])
 
     def render(self, mode):
         pass
