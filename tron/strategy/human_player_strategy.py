@@ -1,4 +1,4 @@
-from strategy import player_game
+from . import player_game
 import numpy as np
 
 import pygame
@@ -12,9 +12,8 @@ PLAYER_KEYS = [
 class HumanPlayerStrategy(player_game.PlayerStrategy):
 
     def __init__(self, player_idx = 0):
-        super(HumanPlayerStrategy, self).__init__()
-        self.player_idx = player_idx
-        self.keys = PLAYER_KEYS[player_idx]
+        super(HumanPlayerStrategy, self).__init__(player_idx)
+        self.keys = PLAYER_KEYS[self.player_idx]
 
     def get_action(self, game, game_state, events = None):
         left_key, right_key = self.keys

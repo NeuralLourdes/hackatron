@@ -1,10 +1,10 @@
-from strategy import player_game
+from . import player_game
 import numpy as np
 
 class RandomStrategy(player_game.PlayerStrategy):
 
-    def __init__(self):
-        super(RandomStrategy, self).__init__()
+    def __init__(self, player_idx = None):
+        super(RandomStrategy, self).__init__(player_idx)
         self.last_action= -1
 
     def get_random_choice(self, game):

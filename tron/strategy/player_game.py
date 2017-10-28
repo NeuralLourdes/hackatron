@@ -1,8 +1,8 @@
 
 class PlayerStrategy(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, player_idx):
+        self.player_idx = player_idx
 
     def get_action(self, game, game_state, other = None):
         raise NotImplementedError()
