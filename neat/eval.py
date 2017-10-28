@@ -1,6 +1,3 @@
-"""
-2-input XOR example -- this is most likely the simplest possible example.
-"""
 
 from __future__ import print_function
 import numpy as np
@@ -10,7 +7,7 @@ import random
 
 import tron
 import play_tron
-
+import NN_IO
 
 def run(config_file):
     # Load configuration.
@@ -27,9 +24,13 @@ def run(config_file):
     p.add_reporter(stats)
     p.add_reporter(neat.Checkpointer(5))
 
-    # Run for up to 300 generations.
-    generations = 20
+    # SERIAL # Run for up to 300 generations.
+    generations = 1
     winner = p.run(play_tron.eval_genomes, generations)
+
+    # PARALLEL # Run for up to 300 generations.
+    pe = neat.ParallelEvaluator(4, eval_genome)
+    winner = p.run(pe.evaluate, 300)
 
     # Display the winning genome.
     #print('\nBest genome:\n{!s}'.format(winner))
@@ -38,8 +39,9 @@ def run(config_file):
     print('\nOutput:')
     winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
     
-    demo_game(winner_net, winner_net)    
+    play_tron.demo_game(winner_net, winner_net)    
     
+    NN_IO.save(winner_net, "beste")
 
     #p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
     #p.run(eval_genomes, 10)

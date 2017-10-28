@@ -7,56 +7,60 @@ import random
 from strategy import player_game
 import strategy.AlphaSnake.GameStatePredictionNetwork as gspn
 from strategy.AlphaSnake.AlphaSnakeHelper import *
+import pickle
+import time
+import zipfile
 
-learning_rate = 0.000008
+import tron as tron
+
+from strategy.AlphaSnake.Tree_Node import tree_node
+from strategy.AlphaSnake.Game_State_Predictor import Game_State_Predictor
+
+
 
 class alphaSnakeStrategy(player_game.PlayerStrategy):
 
     def __init__(self, player_idx, width, height):
         super(alphaSnakeStrategy, self).__init__(player_idx)
 
-        self.game_stat_buffer=[]
-        self.keep_prob_tensor = tf.placeholder(tf.float32)
-        self.input_tensor = tf.placeholder(tf.float32, [None, height, width, 4])
-        self.output_tensor = tf.placeholder(tf.float32, [None, 2])
-        self.model_out_with_softmax_tensor, self.cost_tensor = gspn.get_prediction_network(self.input_tensor, self.output_tensor, self.keep_prob_tensor,"ASPN"+str(player_idx))
-        self.optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.cost_tensor)
+        self.GSP=Game_State_Predictor(player_idx, width, height)
 
-        self.tf_sess = tf.Session()
-        self.tf_sess.run(tf.global_variables_initializer())
+
 
 
     def get_action(self, game, game_state, other = None):
         p1pos = game_state.player_pos[self.get_player_idx()]
         p2pos = game_state.player_pos[self.get_enemy_idx()]
-        train_mat = get_training_matrix(game_state.game_field, p1pos, p2pos, self.get_player_idx(), self.get_enemy_idx())
 
-        self.game_stat_buffer.append(train_mat)
+        self.GSP.on_new_data(game_state.game_field,p1pos,p2pos,self.get_player_idx(),self.get_enemy_idx())
 
-        #print(np.shape(train_mat))
+        #self.framecounter += 1
+        #if debug_mode and print_every_x_frames!=0 and self.framecounter%print_every_x_frames==0:
+        #    prediction=self.tf_sess.run(self.model_out_with_softmax_tensor, feed_dict={self.input_tensor: [train_mat], self.keep_prob_tensor: 1.0})
+        #    print("{} player{}".format(prediction[0],self.player_idx))
 
-        #print(game.get_available_actions())
-        return 2
 
-    def train(self, x_train, y_train, x_test, y_test, dropout):
-        batch_training_iters=1
-        for step in range(batch_training_iters):
-            batch_x, batch_y = x_train, y_train
-            self.tf_sess.run(self.optimizer, feed_dict={self.input_tensor: batch_x, self.output_tensor: batch_y, self.keep_prob_tensor: dropout})
-            #cost_val = self.tf_sess.run(self.cost_tensor, feed_dict={x_pretrain: x_train, y_pretrain: y_train, keep_prob: 1.})
-            #print("TestCost: ", cost_val)
-        print("trained")
+        player = game.players[self.player_idx]
+        used_action = -1
+        actions = [game.ACTION_TURN_LEFT, game.ACTION_TURN_RIGHT]
+        np.random.shuffle(actions)
+        for action in [game.ACTION_STRAIGHT] + actions:
+            orientation, next_position = player.get_next_position_after_action(action)
+            if not game.check_pos_is_invalid(*next_position) and game_state.game_field[next_position.y][next_position.x] == 0:
+                used_action = action
+                break
+        if used_action == -1:
+            used_action = 0
+
+
+
+
+        return np.random.choice([np.random.choice(game.get_available_actions()),action,action,action,action,action,action])
+
+
 
     def on_game_over(self, game, game_state):
-
-        print("over")
-
-        train_inp = self.game_stat_buffer
-        train_outp = np.ones((len(self.game_stat_buffer),2))*(self.player_has_won(), self.enemy_has_won())
-
-        self.train(train_inp, train_outp, None, None, 0.9)
-
-        self.game_stat_buffer=[]
+        self.GSP.on_game_finished(self.player_has_won(game),  self.enemy_has_won(game))
 
 
     def game_is_over(self, game):
@@ -67,6 +71,70 @@ class alphaSnakeStrategy(player_game.PlayerStrategy):
 
     def enemy_has_won(self, game):
         return game.player_lost[self.get_enemy_idx()]
+
+    '''
+
+    def get_new_point(self, pos, action, orientation, id):
+        factor = 0
+
+        if action == tron.ACTION_TURN_LEFT:
+            factor = -90
+        elif action == tron.ACTION_TURN_RIGHT:
+            factor = 90
+
+        orientation = (orientation + factor) % 360
+        x, y = pos
+
+        if orientation == 0:
+            y -= 1
+        elif orientation == 90:
+            x += 1
+        elif orientation == 180:
+            y += 1
+        else:
+            x -= 1
+
+        return orientation, tron.Point(x, y)
+
+
+    def get_new_field_node(self, parent, p1move, p2move):
+        field = np.clone(parent.field)
+
+        score = -1
+
+        p1o, p1p = self.get_new_point(parent.p_position, p1move, parent.orientation[self.get_player_idx()-1], self.get_player_idx())
+        if field[p1p.y,p1p.x] == 0:
+            score = 0
+        else:
+            field[p1p.y, p1p.x]=self.get_player_idx()
+
+        p2o , p2p=self.get_new_point(parent.position[self.get_enemy_idx()-1],p2move,parent.orientation[self.get_enemy_idx()-1],self.get_enemy_idx())
+        if field[p2p.y,p2p.x] == 0:
+            score=1
+        else:
+            field[p2p.y, p2p.x]=self.get_player_idx()
+
+        if score==-1:
+            score=self.get_game_score(field, p1p, p2p, self.get_player_idx(), self.get_enemy_idx())
+
+        return tree_node(field, score, [p1o,p2o], [p1p,p2p])
+
+
+
+
+
+    def get_next_move(self, game, game_state):
+
+        field=np.copy(game_state.game_field)
+        orientation=game_state.player_orientation
+        position=game_state.player_pos
+        tree = tree_node(field, 0, orientation[self.get_player_idx()-1], position[self.get_player_idx()-1], orientation[self.get_enemy_idx()-1], position[self.get_enemy_idx()-1])
+
+        for p1_move in range(3):
+            for p2_move in range(3):
+
+                tree.add_node(self.get_new_field_node(tree, 0, p1_move, p2_move))
+    '''
 
 
 '''
