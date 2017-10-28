@@ -77,7 +77,7 @@ class Player():
         self.pos = Point(self.x, self.y)
 
     def clone(self):
-        copied = Player(self.name, self.get_position(), self.orientation, list(self.body))
+        copied = Player(self.name, self.get_position(), self.orientation, [])
         return copied
 
 def is_same_point(pos1, pos2):
@@ -256,7 +256,7 @@ class TronGame(object):
         new_game.has_played = np.copy(self.has_played)
         new_game.player_lost = np.copy(self.player_lost)
         new_game.tick = self.tick
-        new_game.game_field = None
+        new_game.game_field = np.copy(self.game_field)
         return new_game
 
     def game_over(self):
