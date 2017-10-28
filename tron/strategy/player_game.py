@@ -6,6 +6,10 @@ class PlayerStrategy(object):
     def get_action(self, game, game_state, other=None):
         raise NotImplementedError()
 
+    def on_game_over(self, game, game_state):
+        #raise NotImplementedError()
+        pass
+
     def game_is_over(self, game):
         return game.game_over()
 
