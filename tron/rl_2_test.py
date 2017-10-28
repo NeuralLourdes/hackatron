@@ -2,6 +2,8 @@
 
 import numpy as np
 import tron
+import traceback
+import sys
 from strategy.rl_keras_model import rl_keras_train
 
 
@@ -27,7 +29,8 @@ def main():
             rl_keras_train.load_progress(dqn)
         dqn.fit(env, nb_steps=args.steps, visualize=False, verbose=args.verbose, callbacks=rl_keras_train.get_callbacks(period=args.save_period))
     except Exception as e:
-        print('Warning: {}'.format(e))
+        traceback.print_exc(file=sys.stdout)
+        print('Warning: {}, {}'.format(e, e.message))
     print('Saving')
     rl_keras_train.save_progress(dqn)
 
