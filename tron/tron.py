@@ -102,7 +102,7 @@ class TronGame(object):
         self.has_played = [False, False]
         self.player_lost = [False, False]
         self.tick = 0
-        self.get_game_field()
+        self.game_field = np.zeros((self.height, self.width), dtype=np.int8)
 
     def set_player_pos(self, player_1_pos, player_2_pos):
         for player, pos in zip(self.players, [player_1_pos, player_2_pos]):
@@ -162,27 +162,17 @@ class TronGame(object):
                 self.player_lost[player_idx] = True
                 self.player_lost[player_idx + 1] = True
 
-    def get_game_field(self):
-        self.game_field = np.zeros((self.height, self.width), dtype=np.int8)
-
-        for player_idx, (x, y) in self.get_player_positions_flat():
-            self.game_field[y, x] = player_idx + 1
-
-        return self.game_field
-
     def check_player_lost_status(self):
         for player_idx, player in enumerate(self.players):
             pos = player.get_position()
             if self.check_pos_is_invalid(*pos):
                 self.player_lost[player_idx] = True
                 break
-
             other_player = self.players[(player_idx + 1) % 2]
             for other_pos in other_player.body + player.body[:-1]:
                 if is_same_point(pos, other_pos):
                     self.player_lost[player_idx] = True
                     break
-
         return np.any(self.player_lost)
 
     def check_player_lost_status_x(self):
@@ -266,7 +256,7 @@ class TronGame(object):
         field_width_padded = (self.width * 2 + 2)
         out += '_' * field_width_padded
         out += '\n'
-        for row in self.get_game_field():
+        for row in self.game_field:
             out += '|'
             for cell in row:
                 if cell == 0:

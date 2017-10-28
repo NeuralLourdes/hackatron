@@ -2,6 +2,7 @@ from strategy.reinforcement_learning.rl_strategy_train import *
 import tron
 import pickle
 import os
+from time import time
 
 env = tron.TronGame(width = 30, height = 30)
 
@@ -26,12 +27,17 @@ def check_point():
 def get_observation_presentation(observation):
     return str(observation.reshape(-1))
 
+CHECK_POINT_NUMBER = 10
+start_time = time()
 try:
     for games in range(NUM_GAMES):
         # initial observation
         observation = env.game_field
 
-        if games % 5 == 0:
+        if games % CHECK_POINT_NUMBER == 0:
+            time_elapsed = time() - start_time
+            print('Time per game: {:.4f}s'.format(time_elapsed / CHECK_POINT_NUMBER))
+            start_time = time()
             check_point()
 
         env.reset()
