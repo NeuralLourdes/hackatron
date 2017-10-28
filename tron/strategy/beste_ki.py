@@ -10,7 +10,7 @@ class Beste_ki(player_game.PlayerStrategy):
 
     def get_action(self, game, game_state, other = None):
         timestamp = time.time()
-        score, clone_game, action = self.find_best_action(game, 5)
+        score, clone_game, action = self.find_best_action(game, 3)
         print("Processing step took ", time.time()-timestamp)
         return action
 
@@ -27,7 +27,7 @@ class Beste_ki(player_game.PlayerStrategy):
     def find_best_action(self, game, max_depth):
         to_be_processed = list([(state, max_depth) for state in self.generate_next_games(game)])
 
-        result = (1, game, 0)
+        candidates = []
 
         while len(to_be_processed) > 0:
             head, *to_be_processed = to_be_processed
@@ -35,11 +35,20 @@ class Beste_ki(player_game.PlayerStrategy):
             current_state, depth = head
 
             if depth == 0:
-                result = self.best(result, current_state)
+                candidates.append(current_state)
+
             else:
                 new_states = [(state, depth-1) for state in self.process_state(current_state)]
                 to_be_processed = to_be_processed + new_states
 
+        print("Found candidates: ", len(candidates))
+
+        return self.determine_winner(candidates)
+
+    def determine_winner(self, candidates):
+        result = (1, None, 0)
+        for current_state in candidates:
+            result = self.best(result, current_state)
         return result
 
     def replace_action(self, tu, action):
@@ -50,6 +59,7 @@ class Beste_ki(player_game.PlayerStrategy):
         for action in game.get_available_actions():
             for opponent_action in self.predict_opponent_actions(game):
                 cloned_game = game.clone()
+                cloned_game.has_played = [False, False]
                 cloned_game.set_action(self.get_player_idx(), action)
                 cloned_game.set_action(self.get_enemy_idx(), opponent_action)
                 score = self.evaluate_state(cloned_game)
@@ -64,10 +74,8 @@ class Beste_ki(player_game.PlayerStrategy):
                 return 1
         return 0
 
-
     def predict_opponent_actions(self, game):
         return game.get_available_actions()
-
 
     def on_game_over(self, game, game_state):
         print("I won: ", self.player_has_won(game))
