@@ -40,6 +40,43 @@ class Game_State_Predictor:
         self.framecounter=0
         self.player_idx = player_idx
 
+        file=os.path.dirname(os.path.realpath(__file__)) + '/Data/Models/model.m'
+
+        self.save_model(file)
+
+        self.load_model(file)
+
+
+
+
+    def print_all_vars(self):
+        print([n.name for n in self.tf_sess.graph.get_operations()])
+
+    def get_model_vars(self):
+        variables = ['alx_conv1/kernel:0', 'alx_conv1/bias:0', 'alx_norm1/beta:0', 'alx_norm1/gamma:0',
+                     'alx_norm1/moving_mean:0', 'alx_norm1/moving_variance:0', 'alx_conv2/kernel:0', 'alx_conv2/bias:0',
+                     'alx_norm2/beta:0', 'alx_norm2/gamma:0', 'alx_norm2/moving_mean:0', 'alx_norm2/moving_variance:0',
+                     'alx_conv3/kernel:0', 'alx_conv3/bias:0', 'alx_conv4/kernel:0', 'alx_conv4/bias:0',
+                     'alx_conv5/kernel:0', 'alx_conv5/bias:0', 'alx_norm3/beta:0', 'alx_norm3/gamma:0',
+                     'alx_norm3/moving_mean:0', 'alx_norm3/moving_variance:0', 'alx_dense1/kernel:0',
+                     'alx_dense1/bias:0',
+                     'alx_dense2/kernel:0', 'alx_dense2/bias:0', 'alx_dense_last0/kernel:0', 'alx_dense_last0/bias:0',
+                     'beta1_power:0', 'beta2_power:0']
+
+
+    def load_model(self,filename):
+        print("loading model")
+        saver = tf.train.Saver()
+        saver.restore(self.tf_sess, filename)
+
+    def save_model(self,filename):
+        print("Saving model...")
+        saver = tf.train.Saver()
+        saver.save(self.tf_sess, filename)
+
+
+
+
     def on_new_data(self, field, p1pos, p2pos, p1_idx, p2_idx):
 
         train_mat = get_training_matrix(field, p1pos, p2pos, p1_idx, p2_idx)
@@ -157,6 +194,9 @@ class Game_State_Predictor:
             if self.reset_counter >= train_every_x_losses:
                 self.reset_counter=0
                 self.train(self.game_state_input_buffer, self.game_state_output_buffer, None, None, 0.9)
+
+
+
                 if reset_data_after_training:
                     #self.save_data(self.game_state_input_buffer, self.game_state_output_buffer)
                     self.game_state_output_buffer = []
