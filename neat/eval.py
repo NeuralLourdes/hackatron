@@ -10,14 +10,57 @@ import random
 import tron
 import numpy as np
 
-# 2-input XOR inputs and expected outputs.
-xor_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
-xor_outputs = [   (0.0,),     (1.0,),     (1.0,),     (0.0,)]
+gameSize = [20,20]
+
+# extract map close to head of snake/tron
+def transform_map(gameMap, heads, rotation):
+    visual_range = 5
+    visual_map = np.empty([visual_range, visual_range])
+    
+    x_head = heads[0][0]
+    y_head = heads[0][1]
+    for x_offset in range(visual_range):
+        for y_offset in range(visual_range):
+            x_pos = x_head - 2 + x_offset
+            y_pos = y_head - 2 + y_offset
+            if x_pos >= 0 and x_pos < gameSize[0] and y_pos >= 0 and y_pos < gameSize[1]:
+                visual_map[x_offset, y_offset] = gameMap[x_pos, y_pos]
+            else:
+                visual_map[x_offset, y_offset] = -1
+
+    print(gameMap)
+    print(visual_map)
+    
+
+
+def evolve(game, net1, net2):
+    gameState = game.get_game_state()
+    gameMap = np.array(gameState[1])
+
+    #print(gameState)
+    transform_map(gameMap, gameState[2], gameState[3])
+
+    # get decisions
+    gameMap = gameMap.flatten()
+    output1 = net1.activate(gameMap)
+    output2 = net2.activate(gameMap)
+
+    def pick(x):
+        return {
+            0: tron.ACTION_STRAIGHT,
+            1: tron.ACTION_TURN_RIGHT,
+            2: tron.ACTION_TURN_LEFT,
+        }[x]
+
+    # set decisions
+    game.set_action(0, pick(np.argmax(output1)))
+    game.set_action(1, pick(np.argmax(output2)))
+
+    return game
 
 
 def game_outcome(net1, net2):
-
-    game = tron.TronGame(width = 20, height = 20)
+    game = tron.TronGame(width = gameSize[0], height = gameSize[1])
 
     finished = False
     while not finished:
@@ -35,7 +78,6 @@ def game_outcome(net1, net2):
         #print("PLAYER 1 has WON")
         return 1
     else:
-        print("BOTH LOSE")
         return 0
 
 def demo_game(net1, net2):
@@ -52,28 +94,6 @@ def demo_game(net1, net2):
 
     gameState = game.get_game_state()
     print(gameState)
-
-
-def evolve(game, net1, net2):
-    gameState = game.get_game_state()
-    gameMap = np.array(gameState[1]).flatten()
-
-    # get decisions
-    output1 = net1.activate(gameMap)
-    output2 = net2.activate(gameMap)
-
-    def pick(x):
-        return {
-            0: tron.ACTION_STRAIGHT,
-            1: tron.ACTION_TURN_RIGHT,
-            2: tron.ACTION_TURN_LEFT,
-        }[x]
-
-    # set decisions
-    game.set_action(0, pick(np.argmax(output1)))
-    game.set_action(1, pick(np.argmax(output2)))
-
-    return game
 
 
 def eval_genomes(genomes, config):
