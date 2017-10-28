@@ -10,6 +10,7 @@ from strategy.human_player_strategy import HumanPlayerStrategy
 from strategy.random_strategy import RandomStrategy
 from strategy.simple_strategy import SimpleStrategy
 from strategy.player_game import PlayerGame
+from strategy.beste_ki import Beste_ki
 
 def get_args():
     import argparse
@@ -43,8 +44,8 @@ def main():
     strategy_1 = HumanPlayerStrategy(player_idx=0)
     strategy_2 = HumanPlayerStrategy(player_idx=1)
 
-    strategy_1 = SimpleStrategy(0)
-    strategy_2 = SimpleStrategy(1)
+    strategy_1 = Beste_ki(0)
+    strategy_2 = HumanPlayerStrategy(1)
     strategies = [strategy_1, strategy_2]
 
     player_game = PlayerGame(game, strategies)
