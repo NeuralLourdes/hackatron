@@ -1,6 +1,7 @@
 from strategy.reinforcement_learning.rl_strategy_train import *
 import tron
 import pickle
+import os
 
 env = tron.TronGame(width = 30, height = 30)
 
@@ -12,7 +13,7 @@ def calculate_reward(player_idx):
 USE_CHECK_POINT = True
 NUM_GAMES = 1000000
 
-if USE_CHECK_POINT:
+if USE_CHECK_POINT and os.path.exists(STRATEGY_FILE):
     with open(STRATEGY_FILE, 'rb') as f:
         RLS = pickle.load(f)
 else:
