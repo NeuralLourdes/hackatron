@@ -18,19 +18,21 @@ def load_progress(model):
 def save_progress(model):
     model.save_weights(TRAIN_FILE, overwrite=True)
 
-def get_model(env):
+def get_model(env, num_layers = 3):
     num_actions = len(env.get_available_actions())
     model = Sequential()
     model.add(Flatten(input_shape=(1,) + env.game_field.shape))
-    model.add(Dense(16))
-    model.add(Activation('relu'))
+    for i in range(num_layers):
+        model.add(Dense(16))
+        model.add(Activation('relu'))
+
     model.add(Dense(num_actions))
     model.add(Activation('linear'))
     print(model.summary())
 
     policy = EpsGreedyQPolicy()
-    memory = SequentialMemory(limit=50000, window_length=1)
-    dqn = DQNAgent(model=model, nb_actions=num_actions, memory=memory, nb_steps_warmup=1000,
+    memory = SequentialMemory(limit=100000, window_length=1)
+    dqn = DQNAgent(model=model, nb_actions=num_actions, memory=memory, nb_steps_warmup=0,
     target_model_update=1e-2, policy=policy)
     dqn.compile(Adam(lr=1e-3), metrics=['mae'])
     return dqn

@@ -11,6 +11,7 @@ def get_args():
     parser.add_argument('--steps', type=int, default=100000)
     parser.add_argument('--width', type=int, default=100)
     parser.add_argument('--height', type=int, default=100)
+    parser.add_argument('--disable_loading', action='store_true')
     parser.add_argument('--verbose', type=int, default=1)
     args = parser.parse_args()
     return args
@@ -21,8 +22,8 @@ def main():
     try:
         env = tron.TronGame(width=args.width, height=args.width)
         dqn = rl_keras_train.get_model(env)
-
-        rl_keras_train.load_progress(dqn)
+        if not args.disable_loading:
+            rl_keras_train.load_progress(dqn)
         dqn.fit(env, nb_steps=args.steps, visualize=False, verbose=args.verbose)
     except Exception as e:
         print('Warning: {}'.format(e))
