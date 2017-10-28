@@ -16,6 +16,8 @@ import tron as tron
 from strategy.AlphaSnake.Tree_Node import tree_node
 from strategy.AlphaSnake.Game_State_Predictor import Game_State_Predictor
 
+
+
 class alphaSnakeStrategy(player_game.PlayerStrategy):
 
     def __init__(self, player_idx, width, height):
@@ -54,10 +56,6 @@ class alphaSnakeStrategy(player_game.PlayerStrategy):
 
 
         return np.random.choice([np.random.choice(game.get_available_actions()),action,action,action,action,action,action])
-
-
-
-
 
 
 
