@@ -110,7 +110,7 @@ class TronGame(object):
         self.set_action(player, action)
 
         if np.any(self.player_lost):
-            reward = -10
+            reward = -5
         else:
             reward = self.tick
 

@@ -37,14 +37,8 @@ def get_model(env, num_layers = 2, layer_size = 64, use_random = True):
     policy = EpsGreedyQPolicy()
     memory = SequentialMemory(limit=100000, window_length=1)
 
-
-    if use_random:
-        random_process = rl.random.OrnsteinUhlenbeckProcess(theta=.15, mu=0., sigma=.3, size=num_actions)
-    else:
-        random_process = None
-
     dqn = DQNAgent(model=model, nb_actions=num_actions, memory=memory, nb_steps_warmup=0,
-    target_model_update=1e-2, policy=policy, enable_dueling_network = True)
+    target_model_update=1, policy=policy, enable_dueling_network = True)
     dqn.compile(Adam(lr=1e-3), metrics=['mae'])
     return dqn
 
