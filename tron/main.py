@@ -28,6 +28,8 @@ def get_args():
     parser.add_argument('--player_dim', type=int, default=5)
     parser.add_argument('--skip_frames', type=int, default=1)
     parser.add_argument('--timeout', type=int, default = 10)
+    parser.add_argument('--player_1_strategy', type=str, default = 'simple')
+    parser.add_argument('--player_2_strategy', type=str, default = 'simple')
     args = parser.parse_args()
     return args
 
@@ -54,32 +56,21 @@ def main():
 
     game = init_game(True)
 
-    #strategy_1 = HumanPlayerStrategy(player_idx=0)
-    #strategy_2 = HumanPlayerStrategy(player_idx=1)
+    strategy_definitions = dict(
+        simple = lambda p: SimpleStrategy(p),
+        human = lambda p: HumanPlayerStrategy(p),
+        beste_ki = lambda p: Beste_ki(p, game.width, game.height),
+        rl = lambda p: RLStrategy(p),
+        rl_keras = lambda p: RLKerasStrategy(p, game),
+        neat = lambda p: NEATStrategy(p)
+    )
 
-    #strategy_1 = SimpleStrategy(0)
-    #strategy_2 = SimpleStrategy(1)
-
-    strategy_1 = RLStrategy(0)
-    strategy_2 = RLStrategy(1)
-    strategy_1 = SimpleStrategy(0)
-    strategy_2 = SimpleStrategy(1)
-
-    #strategy_1 = Beste_ki(0)
-    #strategy_2 = Beste_ki(1)
-
-    strategy_1 = RLKerasStrategy(0, game)
-    #strategy_2 = RLKerasStrategy(0, game)
-    #strategy_1 = NEATStrategy(0)
-    #strategy_2 = NEATStrategy(1)
-
-    #strategy_1 = NEATStrategy(0)
-    #strategy_2 = NEATStrategy(1)
-    #strategy_1 = RLKerasStrategy(0, game)
-    #strategy_2 = RLKerasStrategy(0, game)
-    #strategy_1 = Beste_ki(0, game.width, game.height)
-    #strategy_2 = Beste_ki(1, game.width, game.height)
-    strategies = [strategy_1, strategy_2]
+    strategies = []
+    for player_idx, player_strategy_str in enumerate([args.player_1_strategy, args.player_2_strategy]):
+        if player_strategy_str not in strategy_definitions:
+            print('Strategy for player {} is invalid: {}. Valid strategies are: {}'.format(player_idx, player_strategy_str, strategy_definitions.keys()))
+            sys.exit(1)
+        strategies.append(strategy_definitions[player_strategy_str](player_idx))
 
     player_game = PlayerGame(game, strategies)
     # GUI

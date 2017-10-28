@@ -32,7 +32,7 @@ def get_model(env, num_layers = 4, layer_size = 512, window_lenght = 1):
 
     model.add(Dense(num_actions))
     model.add(Activation('linear'))
-    print(model.summary())
+    #print(model.summary())
 
     policy = EpsGreedyQPolicy(eps=.2)
     memory = SequentialMemory(limit=100000, window_length=window_lenght)
