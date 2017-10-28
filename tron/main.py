@@ -18,13 +18,13 @@ from strategy.rl_keras_strategy import RLKerasStrategy
 #from strategy.neat.neat_strategy import NEATStrategy
 from strategy.neat.neat_strategy import NEATStrategy
 #from strategy.rl_strategy import RLStrategy
-#from strategy.beste_ki import Beste_ki
+from strategy.beste_ki import Beste_ki
 
 def get_args():
     import argparse
     parser = argparse.ArgumentParser(description='Tron game')
-    parser.add_argument('--width', type=int, default = 50)
-    parser.add_argument('--height', type=int, default = 50)
+    parser.add_argument('--width', type=int, default = 15)
+    parser.add_argument('--height', type=int, default = 15)
     parser.add_argument('--player_dim', type=int, default=5)
     parser.add_argument('--skip_frames', type=int, default=1)
     parser.add_argument('--timeout', type=int, default = 10)
@@ -52,7 +52,7 @@ def main():
             game.set_player_orientation([get_random_orientation(), get_random_orientation()])
         return game
 
-    game = init_game()
+    game = init_game(True)
 
     strategy_1 = HumanPlayerStrategy(player_idx=0)
     strategy_2 = HumanPlayerStrategy(player_idx=1)
@@ -79,8 +79,8 @@ def main():
     #strategy_2 = NEATStrategy(1)
     #strategy_1 = RLKerasStrategy(0, game)
     #strategy_2 = RLKerasStrategy(0, game)
-    #strategy_1 = Beste_ki(0, game.width, game.height)
-    #strategy_2 = Beste_ki(1, game.width, game.height)
+    strategy_1 = Beste_ki(0, game.width, game.height)
+    strategy_2 = Beste_ki(1, game.width, game.height)
     strategies = [strategy_1, strategy_2]
 
     player_game = PlayerGame(game, strategies)
@@ -142,7 +142,7 @@ def main():
                 strategy.on_game_over(game, game_state)
             pygame.time.wait(500)
             background = get_background()
-            game = init_game()
+            game = init_game(True)
             player_game.game = game
             continue
 
