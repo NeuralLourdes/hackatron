@@ -1,11 +1,19 @@
-
 class PlayerStrategy(object):
 
     def __init__(self, player_idx):
         self.player_idx = player_idx
 
-    def get_action(self, game, game_state, other = None):
+    def get_action(self, game, game_state, other=None):
         raise NotImplementedError()
+
+    def game_is_over(self, game):
+        return game.game_over()
+
+    def player_has_won(self, game):
+        return game.player_lost[self.player_idx]
+
+    def enemy_has_won(self, game):
+        return game.player_lost[(self.player_idx + 1) % 2]
 
 
 class PlayerGame(object):
