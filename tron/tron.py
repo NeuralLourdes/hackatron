@@ -119,10 +119,14 @@ class TronGame(object):
         #player = [p for p, played in zip(range(len(self.players)), self.has_played) if not played][0]
         #self.set_action(player, action)
 
+        reward = 0
+        if action in [ACTION_TURN_RIGHT, ACTION_TURN_LEFT]:
+            reward += 5
+
         if np.any(self.player_lost):
-            reward = -1
+            reward -= -1
         else:
-            reward = self.tick
+            reward += self.tick
 
         info = {}
         game_field_copy = np.copy(self.game_field)

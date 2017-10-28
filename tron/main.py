@@ -43,7 +43,7 @@ def main():
 
     args = get_args()
 
-    def init_game(random = False):
+    def init_game(random = True):
         def get_random_orientation():
             return np.random.choice([0, 90, 180, 270])
         game = tron.TronGame(width = args.width, height = args.height)
