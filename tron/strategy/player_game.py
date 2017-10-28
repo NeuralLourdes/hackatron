@@ -10,14 +10,20 @@ class PlayerStrategy(object):
         #raise NotImplementedError()
         pass
 
+    def get_player_idx(self):
+        return self.player_idx
+
+    def get_enemy_idx(self):
+        return (self.player_idx + 1) % 2
+
     def game_is_over(self, game):
         return game.game_over()
 
     def player_has_won(self, game):
-        return game.player_lost[self.player_idx]
+        return game.player_lost[self.get_player_idx()]
 
     def enemy_has_won(self, game):
-        return game.player_lost[(self.player_idx + 1) % 2]
+        return game.player_lost[self.get_enemy_idx()]
 
 
 class PlayerGame(object):
