@@ -6,7 +6,8 @@ def generate_player_mat(gamestate ,player_id):
 
 def generate_player_head_mat(gamestate ,headpos):
     result = gamestate == -1
-    result[headpos[1], headpos[0] ] =1
+    if np.shape(result)[0]>headpos[1] and headpos[1]>=0 and np.shape(result)[1]>headpos[0] and headpos[0]>=0:
+        result[headpos[1], headpos[0] ] =1
     return result
 
 

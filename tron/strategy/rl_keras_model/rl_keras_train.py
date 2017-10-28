@@ -21,12 +21,10 @@ def load_progress(model):
 def save_progress(model):
     model.save_weights(TRAIN_FILE, overwrite=True)
 
-def get_model(env, num_layers = 2, layer_size = 64, use_random = True, window_lenght = 3):
+def get_model(env, num_layers = 2, layer_size = 64, use_random = True, window_lenght = 1):
     num_actions = len(env.get_available_actions())
     model = Sequential()
-    #print((1, 5, ) + env.game_field.shape)
-    print((1,) + env.game_field.shape)
-    model.add(Flatten(input_shape=(window_lenght,) + env.game_field.shape))
+    model.add(Flatten(input_shape=(1,) + env.game_field.shape))
 
     for i in range(num_layers):
         model.add(Dense(layer_size))
