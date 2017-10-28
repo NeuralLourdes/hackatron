@@ -32,7 +32,7 @@ def main():
     game = init_game()
 
     strategy_1 = HumanPlayerStrategy(player_idx=0)
-    strategy_1 = alphaSnakeStrategy()
+    strategy_1 = alphaSnakeStrategy(player_idx=0, width=game.width,height=game.height)
     strategy_2 = HumanPlayerStrategy(player_idx=1)
     strategy_2 = RandomStrategy()
     strategies = [strategy_1, strategy_2]
