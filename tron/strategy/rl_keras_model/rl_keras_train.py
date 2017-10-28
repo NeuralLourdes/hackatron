@@ -21,7 +21,7 @@ def load_progress(model):
 def save_progress(model):
     model.save_weights(TRAIN_FILE, overwrite=True)
 
-def get_model(env, num_layers = 3, layer_size = 128, use_random = True, window_lenght = 1):
+def get_model(env, num_layers = 3, layer_size = 128, window_lenght = 1):
     num_actions = len(env.get_available_actions())
     model = Sequential()
     model.add(Flatten(input_shape=(1,) + env.game_field.shape))
@@ -34,7 +34,7 @@ def get_model(env, num_layers = 3, layer_size = 128, use_random = True, window_l
     model.add(Activation('linear'))
     print(model.summary())
 
-    policy = EpsGreedyQPolicy(eps=.3)
+    policy = EpsGreedyQPolicy(eps=.2)
     memory = SequentialMemory(limit=100000, window_length=window_lenght)
 
     dqn = DQNAgent(model=model, nb_actions=num_actions, memory=memory, nb_steps_warmup=10000,

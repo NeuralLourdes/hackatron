@@ -126,7 +126,7 @@ class TronGame(object):
         if np.any(self.player_lost):
             reward -= -3
         else:
-            reward += 2
+            reward += 3
 
         info = {}
         game_field_copy = np.copy(self.game_field)

@@ -22,8 +22,7 @@ def get_args():
 
 def init_game(args):
     env = tron.TronGame(width=args.width, height=args.width)
-    env.set_player_pos(env.get_random_pos(), env.get_random_pos())
-    env.set_player_orientation([get_random_orientation(), get_random_orientation()])
+    env.reset(set_random=True)
     return env
 
 def get_random_orientation():
