@@ -118,7 +118,8 @@ class TronGame(object):
             mat[mat != player_idx + 1] = 0
             mat[mat == player_idx + 1] = 1
 
-        return np.vstack(mats)
+        player_heads = np.array([[p.x, p.y] for p in self.players]).flatten()
+        return np.concatenate([np.vstack(mats).flatten(), player_heads])
 
     def step(self, action):
         s = SimpleStrategy(1)

@@ -13,5 +13,5 @@ class RLKerasStrategy(player_game.PlayerStrategy):
         rl_keras_train.load_progress(self.model)
 
     def get_action(self, game, game_state, other=None):
-        action = self.model.forward(game_state.game_field)
+        action = self.model.forward(game.get_decomposed_game_field())
         return action
