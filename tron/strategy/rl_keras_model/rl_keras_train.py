@@ -21,7 +21,7 @@ def load_progress(model):
 def save_progress(model):
     model.save_weights(TRAIN_FILE, overwrite=True)
 
-def get_model(env, num_layers = 2, layer_size = 64, use_random = True, window_lenght = 1):
+def get_model(env, num_layers = 3, layer_size = 128, use_random = True, window_lenght = 1):
     num_actions = len(env.get_available_actions())
     model = Sequential()
     model.add(Flatten(input_shape=(1,) + env.game_field.shape))
