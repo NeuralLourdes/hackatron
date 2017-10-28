@@ -121,12 +121,12 @@ class TronGame(object):
 
         reward = 0
         if action in [ACTION_TURN_RIGHT, ACTION_TURN_LEFT]:
-            reward += 2
+            reward += 3
 
         if np.any(self.player_lost):
-            reward -= -1
+            reward -= -3
         else:
-            reward += self.tick
+            reward += 2
 
         info = {}
         game_field_copy = np.copy(self.game_field)

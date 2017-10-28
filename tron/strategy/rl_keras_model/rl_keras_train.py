@@ -7,7 +7,7 @@ from keras import callbacks
 
 import rl
 from rl.agents.dqn import DQNAgent
-from rl.policy import EpsGreedyQPolicy
+from rl.policy import EpsGreedyQPolicy, BoltzmannQPolicy
 from rl.memory import SequentialMemory
 
 TRAIN_FILE = 'tmp/rl_keras.npy'
@@ -34,7 +34,7 @@ def get_model(env, num_layers = 3, layer_size = 128, use_random = True, window_l
     model.add(Activation('linear'))
     print(model.summary())
 
-    policy = EpsGreedyQPolicy()
+    policy = EpsGreedyQPolicy(eps=.3)
     memory = SequentialMemory(limit=100000, window_length=window_lenght)
 
     dqn = DQNAgent(model=model, nb_actions=num_actions, memory=memory, nb_steps_warmup=0,
