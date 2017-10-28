@@ -24,7 +24,7 @@ def save_progress(model):
 def get_model(env, num_layers = 3, layer_size = 128, window_lenght = 1):
     num_actions = len(env.get_available_actions())
     model = Sequential()
-    model.add(Flatten(input_shape=(1,) + env.game_field.shape))
+    model.add(Flatten(input_shape=(1,) + env.get_decomposed_game_field().shape))
 
     for i in range(num_layers):
         model.add(Dense(layer_size))

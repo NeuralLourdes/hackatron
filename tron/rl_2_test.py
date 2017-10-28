@@ -31,6 +31,7 @@ def get_random_orientation():
 def main():
     args = get_args()
     np.random.seed(123)
+    dqn = None
     try:
         env = init_game(args)
 
@@ -42,7 +43,8 @@ def main():
         traceback.print_exc(file=sys.stdout)
         print('Warning: {}, {}'.format(e, e.message))
     print('Saving')
-    rl_keras_train.save_progress(dqn)
+    if dqn:
+        rl_keras_train.save_progress(dqn)
 
 
 if __name__ == '__main__':

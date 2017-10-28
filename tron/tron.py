@@ -110,7 +110,15 @@ class TronGame(object):
             self.set_player_pos(self.get_random_pos(), self.get_random_pos())
             self.set_player_orientation([self.get_random_orientation(), self.get_random_orientation()])
 
-        return self.game_field
+        return self.get_decomposed_game_field()
+
+    def get_decomposed_game_field(self):
+        mats = [np.copy(self.game_field), np.copy(self.game_field)]
+        for player_idx, mat in enumerate(mats):
+            mat[mat != player_idx + 1] = 0
+            mat[mat == player_idx + 1] = 1
+
+        return np.vstack(mats)
 
     def step(self, action):
         s = SimpleStrategy(1)
@@ -124,19 +132,22 @@ class TronGame(object):
             reward += 1
 
         if np.any(self.player_lost):
-            reward -= -3
+            reward -= -20
         else:
             reward += 3
 
         info = {}
-        game_field_copy = np.copy(self.game_field)
-        game_field_copy[game_field_copy > 0] = 1
+
         game_over = self.game_over()
 
         if game_over:
             self.reset(True)
 
-        return self.game_field, reward, game_over, info
+        game_field = self.get_decomposed_game_field()
+        #game_field = np.copy(self.game_field)
+        #game_field[game_field> 0] = 1
+        #game_field = game_field_copy
+        return game_field, reward, game_over, info
 
     def get_random_orientation(self):
         return np.random.choice([0, 90, 180, 270])
