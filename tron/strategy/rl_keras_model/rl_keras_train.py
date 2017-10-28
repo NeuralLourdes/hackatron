@@ -5,6 +5,7 @@ from keras.layers import Dense, Activation, Flatten
 from keras.optimizers import Adam
 from keras import callbacks
 
+import rl
 from rl.agents.dqn import DQNAgent
 from rl.policy import EpsGreedyQPolicy
 from rl.memory import SequentialMemory
@@ -20,7 +21,7 @@ def load_progress(model):
 def save_progress(model):
     model.save_weights(TRAIN_FILE, overwrite=True)
 
-def get_model(env, num_layers = 2, layer_size = 64):
+def get_model(env, num_layers = 2, layer_size = 64, use_random = True):
     num_actions = len(env.get_available_actions())
     model = Sequential()
     model.add(Flatten(input_shape=(1,) + env.game_field.shape))
@@ -36,8 +37,14 @@ def get_model(env, num_layers = 2, layer_size = 64):
     policy = EpsGreedyQPolicy()
     memory = SequentialMemory(limit=100000, window_length=1)
 
+
+    if use_random:
+        random_process = rl.random.OrnsteinUhlenbeckProcess(theta=.15, mu=0., sigma=.3, size=num_actions)
+    else:
+        random_process = None
+
     dqn = DQNAgent(model=model, nb_actions=num_actions, memory=memory, nb_steps_warmup=0,
-    target_model_update=1e-2, policy=policy)
+    target_model_update=1e-2, policy=policy, enable_dueling_network = True)
     dqn.compile(Adam(lr=1e-3), metrics=['mae'])
     return dqn
 
