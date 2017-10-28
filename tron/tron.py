@@ -115,6 +115,8 @@ class TronGame(object):
             reward = self.tick
 
         info = {}
+        game_field_copy = np.copy(self.game_field)
+        game_field_copy[game_field_copy > 0] = 1
         return self.game_field, reward, self.game_over(), info
 
     def render(self, mode):
