@@ -29,6 +29,29 @@ class Player(object):
     def add_to_body(self, pos=None):
         self.body.append(self.get_position() if pos is None else pos)
 
+    def get_next_position_after_action(self, action):
+        factor = 0
+
+        if action == ACTION_TURN_LEFT:
+            factor = -90
+        elif action == ACTION_TURN_RIGHT:
+            factor = 90
+
+        orientation = (self.orientation + factor) % 360
+        x, y = self.get_position()
+
+        if orientation == 0:
+            y -= 1
+        elif orientation == 90:
+            x += 1
+        elif orientation == 180:
+            y += 1
+        else:
+            x -= 1
+
+        return orientation, Point(x, y)
+
+
     def do_action(self, action):
         factor = 0
 
@@ -92,6 +115,7 @@ class TronGame(object):
 
         if np.all(self.has_played):
             self.check_player_lost_status()
+            self.check_for_collision()
             self.has_played = [False, False]
             self.check_for_collision()
             self.tick += 1
@@ -120,10 +144,10 @@ class TronGame(object):
         return [player.orientation for player in self.players]
 
     def check_player_lost_status(self):
-        for player_idx, player in enumerate(self.players):
-            for x, y in player.body:
-                if self.check_pos_is_invalid(x, y):
-                    self.player_lost[player_idx] = True
+        for player_idx, pos in self.get_player_positions_flat(check_valid=False):
+            if self.player_lost[player_idx]: continue
+            if self.check_pos_is_invalid(*pos):
+                self.player_lost[player_idx] = True
 
     def check_pos_is_invalid(self, x, y):
         res = y < 0 or y >= self.height or x >= self.width or x < 0
@@ -132,10 +156,10 @@ class TronGame(object):
     def get_available_actions(self):
         return [ACTION_TURN_LEFT, ACTION_TURN_RIGHT, ACTION_STRAIGHT]
 
-    def get_player_positions_flat(self):
+    def get_player_positions_flat(self, check_valid = True):
         player_bodies = []
         for player in [PLAYER_1, PLAYER_2]:
-            player_bodies += [(player, pos) for pos in self.players[player].body if not self.check_pos_is_invalid(*pos)]
+            player_bodies += [(player, pos) for pos in self.players[player].body if not check_valid or not self.check_pos_is_invalid(*pos)]
 
         return player_bodies
 
@@ -168,10 +192,8 @@ class TronGame(object):
         return new_game
 
     def game_over(self):
-        self.check_player_lost_status()
         player_has_lost = np.any(self.player_lost)
-        has_collision = self.check_for_collision()
-        return player_has_lost or has_collision
+        return player_has_lost
 
     def __str__(self):
         out = 'Tick: {}\n'.format(self.tick)
