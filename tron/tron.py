@@ -89,11 +89,12 @@ class TronGame(object):
     ACTION_TURN_RIGHT = ACTION_TURN_RIGHT
     ACTION_STRAIGHT = ACTION_STRAIGHT
 
-    def __init__(self, width=20, height=20):
+    def __init__(self, width=20, height=20, reset=True):
         self.width = width
         self.height = height
         # Start positions
-        self.reset()
+        if reset:
+            self.reset()
 
     def reset(self):
         x_offset = 5
@@ -251,7 +252,7 @@ class TronGame(object):
         return Point(np.random.choice(self.width), np.random.choice(self.height))
 
     def clone(self):
-        new_game = TronGame()
+        new_game = TronGame(reset=False)
         new_game.width = self.width
         new_game.height = self.height
         new_game.players = [player.clone() for player in self.players]

@@ -13,7 +13,7 @@ import zipfile
 
 learning_rate = 0.000001
 
-train_every_x_losses = 100
+train_every_x_losses = 1
 print_every_x_frames = 10
 reset_data_after_training = True
 debug_mode=True
@@ -38,6 +38,7 @@ class Game_State_Predictor:
 
         self.reset_counter=0
         self.framecounter=0
+        self.player_idx = player_idx
 
     def on_new_data(self, field, p1pos, p2pos, p1_idx, p2_idx):
 
@@ -60,13 +61,15 @@ class Game_State_Predictor:
             return x, y
 
     def train(self, x_train, y_train, x_test, y_test, dropout):
-        batch_training_iters=1
+        batch_training_iters=5
+        loss = None
         for step in range(batch_training_iters):
             batch_x, batch_y = self.get_batch(x_train, y_train, batch_size)
 
-            self.tf_sess.run(self.optimizer, feed_dict={self.input_tensor: batch_x, self.output_tensor: batch_y, self.keep_prob_tensor: dropout})
+            loss = self.tf_sess.run(self.optimizer, feed_dict={self.input_tensor: batch_x, self.output_tensor: batch_y, self.keep_prob_tensor: dropout})
+            print(loss)
 
-        print("trained player")
+        print("trained player with loss ", loss)
 
 
     def create_data(self, p1_won,p2_won):
@@ -122,10 +125,21 @@ class Game_State_Predictor:
 
         os.remove(filepath)
 
-    def get_game_score(self, field, ppos, npos, p1_idx, p2_idx):
-        train_mat = get_training_matrix(field, ppos, npos, p1_idx, p2_idx)
-        prediction = self.tf_sess.run(self.model_out_with_softmax_tensor, feed_dict={self.input_tensor: [train_mat], self.keep_prob_tensor: 1.0})
-        return prediction[0]
+    def convert_to_prediction_matrix(self, game):
+        game_state = game.get_game_state_as_class()
+        return self.get_prediction_matrix(game_state.game_field,
+                                game_state.player_pos[self.player_idx],
+                                game_state.player_pos[1-self.player_idx], self.player_idx, 1-self.player_idx)
+
+
+    def get_prediction_matrix(self, field, ppos, npos, p1_idx, p2_idx):
+        return get_training_matrix(field, ppos, npos, p1_idx, p2_idx)
+
+    def get_game_score(self,prediction_matrix_list):
+        timestamp = time.time()
+        prediction = self.tf_sess.run(self.model_out_with_softmax_tensor, feed_dict={self.input_tensor: prediction_matrix_list, self.keep_prob_tensor: 1.0})
+        #print("tf_sess ", time.time() - timestamp)
+        return prediction
 
 
     def on_game_finished(self,p1_won,p2_won):
@@ -140,7 +154,7 @@ class Game_State_Predictor:
             if debug_mode:
                 print("data_added player")
 
-            if self.reset_counter>train_every_x_losses:
+            if self.reset_counter >= train_every_x_losses:
                 self.reset_counter=0
                 self.train(self.game_state_input_buffer, self.game_state_output_buffer, None, None, 0.9)
                 if reset_data_after_training:
