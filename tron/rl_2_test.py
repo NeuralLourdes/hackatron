@@ -24,8 +24,8 @@ def main():
 
         rl_keras_train.load_progress(dqn)
         dqn.fit(env, nb_steps=args.steps, visualize=False, verbose=args.verbose)
-    except:
-        pass
+    except Exception as e:
+        print('Warning: {}'.format(e))
     print('Saving')
     rl_keras_train.save_progress(dqn)
 
