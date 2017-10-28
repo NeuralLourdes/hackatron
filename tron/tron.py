@@ -73,7 +73,7 @@ class Player(object):
         else:
             self.x -= 1
 
-        self.add_to_body()
+
 
 
 class TronGame(object):
@@ -94,7 +94,7 @@ class TronGame(object):
         self.has_played = [False, False]
         self.player_lost = [False, False]
         self.tick = 0
-        self.game_field = None
+        self.get_game_field()
 
     def set_player_pos(self, player_1_pos, player_2_pos):
         for player, pos in zip(self.players, [player_1_pos, player_2_pos]):
@@ -114,25 +114,37 @@ class TronGame(object):
         self.has_played[player] = True
 
         if np.all(self.has_played):
+            self.get_game_field()
             self.check_player_lost_status()
-            self.check_for_collision()
             self.has_played = [False, False]
-            self.check_for_collision()
+            for player in self.players:
+                player.add_to_body()
             self.tick += 1
 
-    def get_random_pos(self):
-        return Point(np.random.choice(self.width), np.random.choice(self.height))
 
-    def check_for_collision(self):
+    def get_game_field(self):
+        self.game_field = np.zeros((self.height, self.width), dtype=np.int8)
+
+        for player_idx, (x, y) in self.get_player_positions_flat():
+            self.game_field[y, x] = player_idx + 1
+
+        return self.game_field
+
+    def check_player_lost_status(self):
         collision_found = False
         for player_idx, player in enumerate(self.players):
-            other_player = self.players[(player_idx + 1) % 2]
-            collision_found_ = False
-            for x, y in other_player.body + player.body[:-1]:
-                if player.x == x and player.y == y:
-                    collision_found_ = True
-                    break
-            if collision_found_:
+            player_lost = False
+            pos = player.get_position()
+            x, y = pos
+            position_invalid = self.check_pos_is_invalid(x, y)
+            if position_invalid or self.game_field[y][x] != 0:
+                player_lost = True
+            # other_player = self.players[(player_idx + 1) % 2]
+            #for x, y in other_player.body + player.body[:-1]:
+            #    if player.x == x and player.y == y:
+            #        collision_found_ = True
+            #        break
+            if player_lost:
                 collision_found = True
                 self.player_lost[player_idx] = True
         return collision_found
@@ -143,11 +155,6 @@ class TronGame(object):
     def get_player_orientation(self):
         return [player.orientation for player in self.players]
 
-    def check_player_lost_status(self):
-        for player_idx, pos in self.get_player_positions_flat(check_valid=False):
-            if self.player_lost[player_idx]: continue
-            if self.check_pos_is_invalid(*pos):
-                self.player_lost[player_idx] = True
 
     def check_pos_is_invalid(self, x, y):
         res = y < 0 or y >= self.height or x >= self.width or x < 0
@@ -163,22 +170,19 @@ class TronGame(object):
 
         return player_bodies
 
-    def get_game_field(self):
-        self.game_field = np.zeros((self.height, self.width), dtype=np.int8)
-
-        for player_idx, (x, y) in self.get_player_positions_flat():
-            self.game_field[y, x] = player_idx + 1
-
-        return self.game_field
 
     def get_game_state(self):
-        return self.game_over(), self.get_game_field(), self.get_player_pos(), self.get_player_orientation(), self.player_lost
+        return self.game_over(), self.game_field, self.get_player_pos(), self.get_player_orientation(), self.player_lost
+        #return self.game_over(), self.get_game_field(), self.get_player_pos(), self.get_player_orientation(), self.player_lost
 
     def get_game_state_flattened(self):
         return np.array(self.get_game_state()).flatten()
 
     def get_game_state_as_class(self):
         return GameState(*self.get_game_state())
+
+    def get_random_pos(self):
+        return Point(np.random.choice(self.width), np.random.choice(self.height))
 
     def clone(self):
         new_game = TronGame()

@@ -42,7 +42,7 @@ def main():
 
     strategy_1 = HumanPlayerStrategy(player_idx=0)
     strategy_2 = HumanPlayerStrategy(player_idx=1)
-    
+
     strategy_1 = SimpleStrategy(0)
     strategy_2 = SimpleStrategy(1)
     strategies = [strategy_1, strategy_2]
@@ -84,7 +84,6 @@ def main():
             for x, cell in enumerate(row):
                 if cell != 0:
                     pygame.draw.rect(background, PLAYER_COLORS[cell - 1], (x * args.player_dim, y * args.player_dim, args.player_dim, args.player_dim))
-
 
         # Restart game
         if game.game_over():

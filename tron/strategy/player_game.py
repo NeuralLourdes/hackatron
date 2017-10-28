@@ -1,3 +1,5 @@
+import time
+
 class PlayerStrategy(object):
 
     def __init__(self, player_idx):
@@ -30,12 +32,19 @@ class PlayerGame(object):
         self.game = game
         self.strategies = strategies
 
-    def evaluate(self, events = []):
-        if self.game.game_over():
-            print('Warning: executed PlayerGame.evaluate but game is already over! Aborting')
+    def evaluate(self, events = None):
+        game_state = self.game.get_game_state_as_class()
+        if game_state.game_over:
+            print('Warning: called PlayerGame.evaluate when the game is already over!')
+
             return
 
-        game_state = self.game.get_game_state_as_class()
         for player_idx, strategy in enumerate(self.strategies):
+            start_time = time.time()
             action = strategy.get_action(self.game, game_state, events)
             self.game.set_action(player_idx, action)
+            print('Strategy ({}) took {:.2f} seconds'.format(type(strategy).__name__, time.time() - start_time))
+
+        if self.game.game_over():
+            for strategy in self.strategies:
+                strategy.on_game_over(self.game, game_state)
