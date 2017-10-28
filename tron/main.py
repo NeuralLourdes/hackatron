@@ -70,6 +70,8 @@ def main():
         if player_strategy_str not in strategy_definitions:
             print('Strategy for player {} is invalid: {}. Valid strategies are: {}'.format(player_idx, player_strategy_str, strategy_definitions.keys()))
             sys.exit(1)
+
+        #print(player_idx, player_strategy_str)
         strategies.append(strategy_definitions[player_strategy_str](player_idx))
 
     player_game = PlayerGame(game, strategies)

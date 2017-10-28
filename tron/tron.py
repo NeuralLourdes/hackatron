@@ -132,7 +132,7 @@ class TronGame(object):
         #player = [p for p, played in zip(range(len(self.players)), self.has_played) if not played][0]
         #self.set_action(player, action)
 
-        def get_reward(reward_turns = True, reward_aliveness = True):
+        def get_reward(reward_turns = False, reward_aliveness = True):
             reward = 0
             if reward_turns:
                 if action in [ACTION_TURN_RIGHT, ACTION_TURN_LEFT]:
