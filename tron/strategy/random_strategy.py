@@ -15,5 +15,5 @@ class RandomStrategy(player_game.PlayerStrategy):
         while choice == self.last_action:
             choice = self.get_random_choice(game)
         self.last_action = choice
-        print('Random', choice)
+        #print('Random', choice)
         return choice

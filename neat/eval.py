@@ -64,8 +64,8 @@ def evolve(game, net1, net2):
     gameMap = np.array(gameState[1])
 
     #print(gameState)
-    #visualMap = transform_map(gameMap, gameState[2], gameState[3])
-    visualMap = [np.zeros([5,5]), np.zeros([5,5])]
+    visualMap = transform_map(gameMap, gameState[2], gameState[3])
+    #visualMap = [np.zeros([5,5]), np.zeros([5,5])]
 
     # get decisions
     output1 = net1.activate(visualMap[0].flatten())
@@ -158,7 +158,7 @@ def run(config_file):
     p.add_reporter(neat.Checkpointer(5))
 
     # Run for up to 300 generations.
-    generations = 3
+    generations = 10
     winner = p.run(eval_genomes, generations)
 
     # Display the winning genome.
