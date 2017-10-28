@@ -19,45 +19,61 @@ def game_outcome(net1, net2):
 
     game = tron.TronGame(width = 20, height = 20)
 
-    while True:
+    finished = False
+    while not finished:
+        evolve(game, net1, net2)
+
         gameState = game.get_game_state()
-        gameMap = np.array(gameState[1]).flatten()
+        finished = gameState[0]
+            
+    winners = gameState[4]
 
-        
-        # check if game is over
-        if(gameState[0] == True):
-            #print(gameState)    
-            winners = gameState[4]
-            if(winners[0] and not winners[1]):
-                return 2
-            if(not winners[0] and winners[1]):
-                return 1
-            else:
-                return 0
+    if(winners[0] and not winners[1]):
+        #print("PLAYER 2 has WON")
+        return 2
+    if(not winners[0] and winners[1]):
+        #print("PLAYER 1 has WON")
+        return 1
+    else:
+        print("BOTH LOSE")
+        return 0
 
-        # get decisions
-        output1 = net1.activate(gameMap)
-        output2 = net2.activate(gameMap)
+def demo_game(net1, net2):
+    print("PLAYING DEMO GAME!")
 
-        def pick(x):
-            return {
-                0: tron.ACTION_STRAIGHT,
-                1: tron.ACTION_TURN_RIGHT,
-                2: tron.ACTION_TURN_LEFT,
-            }[x]
+    game = tron.TronGame(width = 20, height = 20)
 
-        # set decisions
-        game.set_action(0, pick(np.argmax(output1)))
-        game.set_action(1, pick(np.argmax(output2)))
+    finished = False
+    while not finished:
+        evolve(game, net1, net2)
+
+        gameState = game.get_game_state()
+        finished = gameState[0]
+
+    gameState = game.get_game_state()
+    print(gameState)
 
 
+def evolve(game, net1, net2):
+    gameState = game.get_game_state()
+    gameMap = np.array(gameState[1]).flatten()
 
-    #print(gameState)
+    # get decisions
+    output1 = net1.activate(gameMap)
+    output2 = net2.activate(gameMap)
 
-    #print(output)
+    def pick(x):
+        return {
+            0: tron.ACTION_STRAIGHT,
+            1: tron.ACTION_TURN_RIGHT,
+            2: tron.ACTION_TURN_LEFT,
+        }[x]
 
-    
-    return random.randint(0,2)
+    # set decisions
+    game.set_action(0, pick(np.argmax(output1)))
+    game.set_action(1, pick(np.argmax(output2)))
+
+    return game
 
 
 def eval_genomes(genomes, config):
@@ -71,10 +87,12 @@ def eval_genomes(genomes, config):
                 net1 = neat.nn.FeedForwardNetwork.create(genome1, config)
                 net2 = neat.nn.FeedForwardNetwork.create(genome2, config)
                 
-                if game_outcome(net1, net2) == 1:
+                fight = game_outcome(net1, net2)
+
+                if fight == 1:
                     genome1.fitness += 1
                     genome2.fitness -= 1
-                elif game_outcome(net1, net2) == 2:
+                elif fight == 2:
                     genome1.fitness -= 1
                     genome2.fitness += 1
 
@@ -94,27 +112,27 @@ def run(config_file):
     p.add_reporter(neat.Checkpointer(5))
 
     # Run for up to 300 generations.
-    winner = p.run(eval_genomes, 30)
+    generations = 20
+    winner = p.run(eval_genomes, generations)
 
     # Display the winning genome.
-    print('\nBest genome:\n{!s}'.format(winner))
+    #print('\nBest genome:\n{!s}'.format(winner))
 
     # Show output of the most fit genome against training data.
     print('\nOutput:')
     winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
-    for xi, xo in zip(xor_inputs, xor_outputs):
-        output = winner_net.activate(xi)
-        print("input {!r}, expected output {!r}, got {!r}".format(xi, xo, output))
-
-    node_names = {-1:'A', -2: 'B', 0:'A XOR B'}
     
+    demo_game(winner_net, winner_net)    
+    
+
     '''
+    node_names = {-1:'A', -2: 'B', 0:'A XOR B'}
     visualize.draw_net(config, winner, True, node_names=node_names)
     visualize.plot_stats(stats, ylog=False, view=True)
     visualize.plot_species(stats, view=True)
     '''
     #p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
-    p.run(eval_genomes, 10)
+    #p.run(eval_genomes, 10)
 
 
 if __name__ == '__main__':
