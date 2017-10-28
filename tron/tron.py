@@ -121,7 +121,7 @@ class TronGame(object):
 
         reward = 0
         if action in [ACTION_TURN_RIGHT, ACTION_TURN_LEFT]:
-            reward += 5
+            reward += 2
 
         if np.any(self.player_lost):
             reward -= -1
