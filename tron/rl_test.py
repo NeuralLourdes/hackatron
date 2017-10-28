@@ -23,6 +23,9 @@ def check_point():
     with open(STRATEGY_FILE, 'wb') as f:
         pickle.dump(RLS, f)
 
+def get_observation_presentation(observation):
+    return str(observation.reshape(-1))
+
 try:
     for games in range(NUM_GAMES):
         # initial observation
@@ -37,7 +40,7 @@ try:
             actions = []
             for player_idx, RL in enumerate(RLS):
                 # RL choose action based on observation
-                action = RL.choose_action(str(observation))
+                action = RL.choose_action(get_observation_presentation(observation))
                 actions.append(action)
                 env.set_action(player_idx, action)
 
@@ -46,7 +49,7 @@ try:
                 reward = calculate_reward(player_idx)
 
                 # RL learn from this transition
-                RL.learn(str(observation), action, reward, str(observation_))
+                RL.learn(get_observation_presentation(observation), action, reward, get_observation_presentation(observation_))
 
             # swap observation
             observation = observation_
