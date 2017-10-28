@@ -21,10 +21,12 @@ def load_progress(model):
 def save_progress(model):
     model.save_weights(TRAIN_FILE, overwrite=True)
 
-def get_model(env, num_layers = 2, layer_size = 64, use_random = True):
+def get_model(env, num_layers = 2, layer_size = 64, use_random = True, window_lenght = 3):
     num_actions = len(env.get_available_actions())
     model = Sequential()
-    model.add(Flatten(input_shape=(1,) + env.game_field.shape))
+    #print((1, 5, ) + env.game_field.shape)
+    print((1,) + env.game_field.shape)
+    model.add(Flatten(input_shape=(window_lenght,) + env.game_field.shape))
 
     for i in range(num_layers):
         model.add(Dense(layer_size))
@@ -35,10 +37,10 @@ def get_model(env, num_layers = 2, layer_size = 64, use_random = True):
     print(model.summary())
 
     policy = EpsGreedyQPolicy()
-    memory = SequentialMemory(limit=100000, window_length=1)
+    memory = SequentialMemory(limit=100000, window_length=window_lenght)
 
     dqn = DQNAgent(model=model, nb_actions=num_actions, memory=memory, nb_steps_warmup=0,
-    target_model_update=1, policy=policy, enable_dueling_network = True)
+    target_model_update=1, policy=policy, enable_dueling_network=True)
     dqn.compile(Adam(lr=1e-3), metrics=['mae'])
     return dqn
 
