@@ -45,7 +45,7 @@ def main():
     strategy_2 = HumanPlayerStrategy(player_idx=1)
 
     strategy_1 = Beste_ki(0)
-    strategy_2 = HumanPlayerStrategy(1)
+    strategy_2 = Beste_ki(1)
     strategies = [strategy_1, strategy_2]
 
     player_game = PlayerGame(game, strategies)
