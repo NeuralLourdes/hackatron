@@ -12,7 +12,7 @@ ACTION_STRAIGHT = 2
 
 
 class Player(object):
-    def __init__(self, name='default', pos=Point(0, 0), orientation=90, body=None):
+    def __init__(self, name='default', pos=Point(0, 0), orientation=180, body=None):
         self.name = name
         self.x, self.y = pos
         self.orientation = orientation
@@ -40,13 +40,13 @@ class Player(object):
         self.add_to_body()
 
         if self.orientation == 0:
-            self.x += 1
-        elif self.orientation == 90:
-            self.y += 1
-        elif self.orientation == 180:
-            self.x -= 1
-        else:
             self.y -= 1
+        elif self.orientation == 90:
+            self.x += 1
+        elif self.orientation == 180:
+            self.y += 1
+        else:
+            self.x -= 1
 
         self.add_to_body()
 
@@ -65,7 +65,7 @@ class TronGame(object):
     def reset(self):
         x_offset = 10
         y_offset = 10
-        self.players = [Player('P1', Point(x_offset, y_offset)), Player('P2', Point(self.width - x_offset - 1, self.height - y_offset - 1), 270)]
+        self.players = [Player('P1', Point(x_offset, y_offset), orientation=180), Player('P2', Point(self.width - x_offset - 1, self.height - y_offset - 1), orientation=0)]
         self.has_played = [False, False]
         self.player_lost = [False, False]
         self.tick = 0
