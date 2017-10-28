@@ -121,22 +121,29 @@ class TronGame(object):
     def check_player_lost_status(self):
         for player_idx, player in enumerate(self.players):
             for x, y in player.body:
-                if self.check_field_bounds(x, y):
+                if self.check_pos_is_valid(x, y):
                     self.player_lost[player_idx] = True
 
-    def check_field_bounds(self, x, y):
-        return y < 0 or y >= self.height or x >= self.width or x < 0
+    def check_pos_is_valid(self, x, y):
+        res = y < 0 or y >= self.height or x >= self.width or x < 0
+        return res
 
     def get_available_actions(self):
         return [ACTION_TURN_LEFT, ACTION_TURN_RIGHT, ACTION_STRAIGHT]
 
+    def get_player_positions_flat(self):
+        player_bodies = []
+        for player in [PLAYER_1, PLAYER_2]:
+            player_bodies += [(player, pos) for pos in self.players[player].body if not self.check_pos_is_valid(*pos)]
+        
+        return player_bodies
+
     def get_game_field(self):
         self.game_field = np.zeros((self.height, self.width), dtype=np.int8)
-        for player_idx, player in enumerate(self.players):
-            for x, y in player.body:
-                if self.check_field_bounds(x, y):
-                    break
-                self.game_field[y][x] = player_idx + 1
+
+        for player_idx, (x, y) in self.get_player_positions_flat():
+            self.game_field[y, x] = player_idx + 1
+
         return self.game_field
 
     def get_game_state(self):

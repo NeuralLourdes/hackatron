@@ -7,7 +7,6 @@ class PlayerStrategy(object):
         raise NotImplementedError()
 
     def on_game_over(self, game, game_state):
-        #raise NotImplementedError()
         pass
 
     def get_player_idx(self):

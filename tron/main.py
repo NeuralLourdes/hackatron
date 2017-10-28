@@ -72,13 +72,10 @@ def main():
             pygame.quit()
             sys.exit()
 
-
-
         game_state = game.get_game_state_as_class()
         for player_idx, strategy in enumerate(strategies):
             action = strategy.get_action(game, game_state, events)
             game.set_action(player_idx, action)
-
 
         for y, row in enumerate(game.get_game_state_as_class().game_field):
             for x, cell in enumerate(row):
