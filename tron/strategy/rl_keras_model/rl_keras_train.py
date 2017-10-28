@@ -34,12 +34,12 @@ def get_model(env, num_layers = 4, layer_size = 512, window_lenght = 1):
     model.add(Activation('linear'))
     #print(model.summary())
 
-    policy = EpsGreedyQPolicy(eps=.2)
+    policy = EpsGreedyQPolicy(eps=.3)
     memory = SequentialMemory(limit=100000, window_length=window_lenght)
 
     dqn = DQNAgent(model=model, nb_actions=num_actions, memory=memory, nb_steps_warmup=10000,
-    target_model_update=1, policy=policy, enable_dueling_network=True)
-    dqn.compile(Adam(lr=1e-3), metrics=['mae'])
+    target_model_update=0.5, policy=policy, enable_dueling_network=True)
+    dqn.compile(Adam(lr=1e-2), metrics=['mae'])
     return dqn
 
 def get_callbacks(verbose = 2, period = 100):
