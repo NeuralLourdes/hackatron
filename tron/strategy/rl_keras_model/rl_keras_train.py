@@ -37,7 +37,7 @@ def get_model(env, num_layers = 3, layer_size = 128, use_random = True, window_l
     policy = EpsGreedyQPolicy(eps=.3)
     memory = SequentialMemory(limit=100000, window_length=window_lenght)
 
-    dqn = DQNAgent(model=model, nb_actions=num_actions, memory=memory, nb_steps_warmup=0,
+    dqn = DQNAgent(model=model, nb_actions=num_actions, memory=memory, nb_steps_warmup=10000,
     target_model_update=1, policy=policy, enable_dueling_network=True)
     dqn.compile(Adam(lr=1e-3), metrics=['mae'])
     return dqn
