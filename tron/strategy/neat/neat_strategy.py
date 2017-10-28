@@ -1,10 +1,12 @@
-from . import player_game
+from .. import player_game
 import numpy as np
 import play_tron
+import os
 
 import NN_IO
 
-bester_boi = NN_IO.restore('beste1')
+filename = os.path.join(os.path.dirname(__file__), 'beste')
+bester_boi = NN_IO.restore(filename)
 
 class NEATStrategy(player_game.PlayerStrategy):
 
