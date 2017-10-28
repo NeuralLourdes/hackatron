@@ -25,7 +25,8 @@ def check_point():
         pickle.dump(RLS, f)
 
 def get_observation_presentation(observation):
-    return str(observation.reshape(-1))
+    return str(observation)
+    #return str(observation)
 
 CHECK_POINT_NUMBER = 10
 start_time = time()
@@ -51,20 +52,21 @@ try:
                 env.set_action(player_idx, action)
 
             observation_ = env.game_field
-            for player_idx, (RL, action) in enumerate(zip(RLS, actions)):
-                reward = calculate_reward(player_idx)
-
-                # RL learn from this transition
-                RL.learn(get_observation_presentation(observation), action, reward, get_observation_presentation(observation_))
 
             # swap observation
-            observation = observation_
 
             # break while loop when end of this episode
             if env.game_over():
+                for player_idx, (RL, action) in enumerate(zip(RLS, actions)):
+                    reward = calculate_reward(player_idx)
+
+                    # RL learn from this transition
+                    RL.learn(get_observation_presentation(observation), action, reward, get_observation_presentation(observation_))
                 break
-        print('({:4}/{}) {} ticks'.format(games + 1, NUM_GAMES, env.tick))
-except:
+            observation = observation_
+        print('({:4}) {}'.format(games + 1, '*' * env.tick))
+except Exception as e:
+    print('Error', e)
     print('Saving strategy')
     check_point()
 
