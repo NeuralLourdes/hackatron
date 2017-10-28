@@ -29,7 +29,7 @@ class Searchtree:
         counter = 0
 
         while len(to_be_processed) > 0:
-            head, to_be_processed = to_be_processed
+            head, to_be_processed = to_be_processed[0], to_be_processed[1:]
 
             current_state, depth = head
 
