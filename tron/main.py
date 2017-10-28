@@ -54,11 +54,11 @@ def main():
 
     game = init_game(True)
 
-    strategy_1 = HumanPlayerStrategy(player_idx=0)
-    strategy_2 = HumanPlayerStrategy(player_idx=1)
+    #strategy_1 = HumanPlayerStrategy(player_idx=0)
+    #strategy_2 = HumanPlayerStrategy(player_idx=1)
 
-    strategy_1 = SimpleStrategy(0)
-    strategy_2 = SimpleStrategy(1)
+    #strategy_1 = SimpleStrategy(0)
+    #strategy_2 = SimpleStrategy(1)
 
     strategy_1 = RLStrategy(0)
     strategy_2 = RLStrategy(1)
