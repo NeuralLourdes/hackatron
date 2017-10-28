@@ -1,4 +1,5 @@
 import time
+import copy
 
 class PlayerStrategy(object):
 
@@ -25,6 +26,7 @@ class PlayerStrategy(object):
 
     def enemy_has_won(self, game):
         return not game.player_lost[self.get_enemy_idx()]
+
 
 
 class PlayerGame(object):

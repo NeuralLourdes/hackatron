@@ -73,7 +73,9 @@ class Player(object):
         else:
             self.x -= 1
 
-
+    def clone(self):
+        copied = Player(self.name, self.get_position(), self.orientation, list(self.body))
+        return copied
 
 
 class TronGame(object):
@@ -188,7 +190,7 @@ class TronGame(object):
         new_game = TronGame()
         new_game.width = self.width
         new_game.height = self.height
-        new_game.players = copy.deepcopy(self.players)
+        new_game.players = [player.clone() for player in self.players]
         new_game.has_played = np.copy(self.has_played)
         new_game.player_lost = np.copy(self.player_lost)
         new_game.tick = self.tick

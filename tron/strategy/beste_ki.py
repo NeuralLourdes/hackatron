@@ -1,4 +1,5 @@
 from strategy import player_game
+import time
 import numpy as np
 
 
@@ -6,27 +7,40 @@ class Beste_ki(player_game.PlayerStrategy):
 
     def __init__(self, player_idx):
         super(Beste_ki, self).__init__(player_idx)
-        self.game_state_history = []
 
     def get_action(self, game, game_state, other = None):
-        self.game_state_history.append(game_state)
-
-        score, clone_game, action = self.find_best_action(game, 0)
+        timestamp = time.time()
+        score, clone_game, action = self.find_best_action(game, 5)
+        print("Processing step took ", time.time()-timestamp)
         return action
 
+    def get_first_item(self, x):
+        return x[0]
 
+    def process_state(self, state):
+        score, game, action = state
+        return [self.replace_action(new_state, action) for new_state in self.generate_next_games(game)]
+
+    def best(self, s1, s2):
+        return min([s1, s2], key=self.get_first_item)
 
     def find_best_action(self, game, max_depth):
-        states = self.generate_next_games(game)
+        to_be_processed = list([(state, max_depth) for state in self.generate_next_games(game)])
 
-        def get_first_item(x):
-            return x[0]
+        result = (1, game, 0)
 
-        if max_depth > 0:
-            states = [self.replace_action(self.find_best_action(new_game, max_depth-1), action) for score, new_game, action in states]
-            return min(states, key=get_first_item)
-        else:
-            return min(states, key=get_first_item)
+        while len(to_be_processed) > 0:
+            head, *to_be_processed = to_be_processed
+
+            current_state, depth = head
+
+            if depth == 0:
+                result = self.best(result, current_state)
+            else:
+                new_states = [(state, depth-1) for state in self.process_state(current_state)]
+                to_be_processed = to_be_processed + new_states
+
+        return result
 
     def replace_action(self, tu, action):
         score, game, _ = tu
@@ -50,8 +64,10 @@ class Beste_ki(player_game.PlayerStrategy):
                 return 1
         return 0
 
+
     def predict_opponent_actions(self, game):
         return game.get_available_actions()
+
 
     def on_game_over(self, game, game_state):
         print("I won: ", self.player_has_won(game))
