@@ -40,23 +40,31 @@ class alphaSnakeStrategy(player_game.PlayerStrategy):
 
     def train(self, x_train, y_train, x_test, y_test, dropout):
         batch_training_iters=1
-        for step in range(batch_training_iters):
-            batch_x, batch_y = x_train, y_train
-            self.tf_sess.run(self.optimizer, feed_dict={self.input_tensor: batch_x, self.output_tensor: batch_y, self.keep_prob_tensor: dropout})
-            #cost_val = self.tf_sess.run(self.cost_tensor, feed_dict={x_pretrain: x_train, y_pretrain: y_train, keep_prob: 1.})
-            #print("TestCost: ", cost_val)
+        #for step in range(batch_training_iters):
+            #batch_x, batch_y = x_train, y_train
+
+        print(self.input_tensor)
+        print(np.shape(x_train))
+
+        self.tf_sess.run(self.optimizer, feed_dict={self.input_tensor: x_train, self.output_tensor: y_train, self.keep_prob_tensor: dropout})
+
+        #cost_val = self.tf_sess.run(self.cost_tensor, feed_dict={x_pretrain: x_train, y_pretrain: y_train, keep_prob: 1.})
+        #print("TestCost: ", cost_val)
+
         print("trained")
 
     def on_game_over(self, game, game_state):
 
         print("over")
 
-        train_inp = self.game_stat_buffer
-        train_outp = np.ones((len(self.game_stat_buffer),2))*(self.player_has_won(), self.enemy_has_won())
+        if len(self.game_stat_buffer)>0:
 
-        self.train(train_inp, train_outp, None, None, 0.9)
+            train_inp = self.game_stat_buffer
+            train_outp = np.ones((len(self.game_stat_buffer),2))*(self.player_has_won(game), self.enemy_has_won(game))
 
-        self.game_stat_buffer=[]
+            self.train(train_inp, train_outp, None, None, 0.9)
+
+            self.game_stat_buffer=[]
 
 
     def game_is_over(self, game):
