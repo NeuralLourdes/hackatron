@@ -8,6 +8,7 @@ import sys
 
 from strategy.human_player_strategy import HumanPlayerStrategy
 from strategy.random_strategy import RandomStrategy
+from strategy.simple_strategy import SimpleStrategy
 
 def get_args():
     import argparse
@@ -41,7 +42,7 @@ def main():
 
     strategy_1 = HumanPlayerStrategy(player_idx=0)
     strategy_2 = HumanPlayerStrategy(player_idx=1)
-    strategy_2 = RandomStrategy()
+    strategy_2 = SimpleStrategy(1, tron.ACTION_STRAIGHT)
     strategies = [strategy_1, strategy_2]
 
     # GUI

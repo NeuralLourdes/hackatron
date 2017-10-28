@@ -7,6 +7,7 @@ Point = collections.namedtuple('Point', ['x', 'y'])
 
 PLAYER_1 = 0
 PLAYER_2 = 1
+
 ACTION_TURN_LEFT = 0
 ACTION_TURN_RIGHT = 1
 ACTION_STRAIGHT = 2
@@ -121,10 +122,10 @@ class TronGame(object):
     def check_player_lost_status(self):
         for player_idx, player in enumerate(self.players):
             for x, y in player.body:
-                if self.check_pos_is_valid(x, y):
+                if self.check_pos_is_invalid(x, y):
                     self.player_lost[player_idx] = True
 
-    def check_pos_is_valid(self, x, y):
+    def check_pos_is_invalid(self, x, y):
         res = y < 0 or y >= self.height or x >= self.width or x < 0
         return res
 
@@ -134,8 +135,8 @@ class TronGame(object):
     def get_player_positions_flat(self):
         player_bodies = []
         for player in [PLAYER_1, PLAYER_2]:
-            player_bodies += [(player, pos) for pos in self.players[player].body if not self.check_pos_is_valid(*pos)]
-        
+            player_bodies += [(player, pos) for pos in self.players[player].body if not self.check_pos_is_invalid(*pos)]
+
         return player_bodies
 
     def get_game_field(self):

@@ -19,10 +19,10 @@ class PlayerStrategy(object):
         return game.game_over()
 
     def player_has_won(self, game):
-        return game.player_lost[self.get_player_idx()]
+        return not game.player_lost[self.get_player_idx()]
 
     def enemy_has_won(self, game):
-        return game.player_lost[self.get_enemy_idx()]
+        return not game.player_lost[self.get_enemy_idx()]
 
 
 class PlayerGame(object):
