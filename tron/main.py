@@ -70,8 +70,6 @@ def main():
 
     strategy_1 = RLKerasStrategy(0, game)
     #strategy_2 = RLKerasStrategy(0, game)
-    #strategy_1 = RLKerasStrategy(0, game)
-    #strategy_2 = RLKerasStrategy(0, game)
     #strategy_1 = NEATStrategy(0)
     #strategy_2 = NEATStrategy(1)
 
@@ -79,8 +77,8 @@ def main():
     #strategy_2 = NEATStrategy(1)
     #strategy_1 = RLKerasStrategy(0, game)
     #strategy_2 = RLKerasStrategy(0, game)
-    strategy_1 = Beste_ki(0, game.width, game.height)
-    strategy_2 = Beste_ki(1, game.width, game.height)
+    #strategy_1 = Beste_ki(0, game.width, game.height)
+    #strategy_2 = Beste_ki(1, game.width, game.height)
     strategies = [strategy_1, strategy_2]
 
     player_game = PlayerGame(game, strategies)
