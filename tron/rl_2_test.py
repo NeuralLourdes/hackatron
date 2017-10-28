@@ -11,8 +11,8 @@ def get_args():
     import argparse
     parser = argparse.ArgumentParser(description='Train a keras DQN agend')
     parser.add_argument('--steps', type=int, default=100000)
-    parser.add_argument('--width', type=int, default=30)
-    parser.add_argument('--height', type=int, default=30)
+    parser.add_argument('--width', type=int, default=50)
+    parser.add_argument('--height', type=int, default=50)
     parser.add_argument('--disable_loading', action='store_true')
     parser.add_argument('--save_period', type=int, default=100)
     parser.add_argument('--verbose', type=int, default=2)

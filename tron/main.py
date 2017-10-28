@@ -23,8 +23,8 @@ from strategy.neat.neat_strategy import NEATStrategy
 def get_args():
     import argparse
     parser = argparse.ArgumentParser(description='Tron game')
-    parser.add_argument('--width', type=int, default = 30)
-    parser.add_argument('--height', type=int, default = 30)
+    parser.add_argument('--width', type=int, default = 50)
+    parser.add_argument('--height', type=int, default = 50)
     parser.add_argument('--player_dim', type=int, default=5)
     parser.add_argument('--skip_frames', type=int, default=1)
     parser.add_argument('--timeout', type=int, default = 10)
