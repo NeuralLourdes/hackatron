@@ -11,11 +11,11 @@ import pickle
 import time
 import zipfile
 
-learning_rate = 0.00001
+learning_rate = 0.0000001
 
 train_every_x_losses = 1
 print_every_x_frames = 10
-reset_data_after_training = False
+reset_data_after_training = True
 debug_mode=True
 batch_size=10
 
@@ -39,12 +39,10 @@ class Game_State_Predictor:
         self.reset_counter=0
         self.framecounter=0
         self.player_idx = player_idx
-
-        file=os.path.dirname(os.path.realpath(__file__)) + '/Data/Models/model.m'
-
-        self.save_model(file)
-
-        self.load_model(file)
+        self.model_file = './Data/Models/model.m'
+        #self.load_model(self.model_file)
+        self.training_step = 0
+        #self.save_model(self.model_file)
 
 
 
@@ -107,6 +105,12 @@ class Game_State_Predictor:
             print(loss)
 
         print("trained player with loss ", loss)
+
+
+        #if self.training_step % 10 == 0:
+            #self.save_model(self.model_file)
+
+        self.training_step += 1
 
 
     def create_data(self, p1_won,p2_won):
