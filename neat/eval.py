@@ -25,13 +25,16 @@ def run(config_file):
     pop.add_reporter(stats)
     pop.add_reporter(neat.Checkpointer(5))
 
-    generations = 60
+    generations = 65
+
+    #pop = neat.Checkpointer.restore_checkpoint('neat-checkpoint-64')
+    pop = neat.Checkpointer.restore_checkpoint('neat-checkpoint-64')
 
     # SERIAL # 
-    #winner = pop.run(play_tron.eval_genomes, generations)
+    winner = pop.run(play_tron.eval_genomes, generations)
 
     # PARALLEL # 
-    
+    '''
     cpu_cores = 1
     references = 11
     files = ['neat_reference'+str(n+1) for n in range(references)]
@@ -45,7 +48,7 @@ def run(config_file):
         goenni = play_tron.genome_parallel(winner, refnets)
         pe = neat.ParallelEvaluator(cpu_cores, goenni.eval_fn)
         winner = pop.run(pe.evaluate, 1)
-    
+    '''
 
     # Show output of the most fit genome against training data.
     print('\nOutput:')
