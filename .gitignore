@@ -4,4 +4,4 @@ __pycache__
 *.pyc
 tron/tmp/*
 tron/strategy/AlphaSnake/Data/*
-replay_*
+replay_*.npy
