@@ -14,8 +14,10 @@ def transform_map(gameMapRaw, heads, rotation):
 
     heads = [head1, head2]
 
-    gameMapRaw[heads[0][1], heads[0][0]] = 3
-    gameMapRaw[heads[1][1], heads[1][0]] = 3
+    if heads[0][1]<gameSize[1] and heads[0][0]<gameSize[0]:
+        gameMapRaw[heads[0][1], heads[0][0]] = 3
+    if heads[1][1] < gameSize[1] and heads[1][0] < gameSize[0]:
+        gameMapRaw[heads[1][1], heads[1][0]] = 3
 
     visual_range = 7
 
