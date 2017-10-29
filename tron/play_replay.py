@@ -38,7 +38,7 @@ def main():
         game.set_player_pos(*start_positions)
 
         pygame.init()
-        screen = pygame.display.set_mode((int(width * args.player_dim) + game_offset[0] * 2, int(height * args.player_dim) + game_offset[1]))
+        screen = pygame.display.set_mode((int(width * args.player_dim) + game_offset[0] * 2 , int(height * args.player_dim) + game_offset[1]))
 
         pygame.display.set_caption('Tron')
         pygame.mouse.set_visible(0)
