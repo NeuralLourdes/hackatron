@@ -156,10 +156,9 @@ def eval_genomes(genomes, config):
 
 
 class genome_parallel:
-    def __init__(self, best_net, ref_net1, ref_net2):
+    def __init__(self, best_net, ref_nets):
         self.best_net = best_net
-        self.ref_net1 = ref_net1
-        self.ref_net2 = ref_net2
+        self.ref_nets = ref_nets
 
     def eval_fn(self, genome, config):
         fitness = 0
@@ -178,8 +177,9 @@ class genome_parallel:
             return fitness
 
         fitness = fight(bestnet, fitness)
-        fitness = fight(self.ref_net1, fitness)
-        fitness = fight(self.ref_net2, fitness)
+
+        for net in self.ref_nets:
+            fitness = fight(net, fitness)
 
         return fitness
 
