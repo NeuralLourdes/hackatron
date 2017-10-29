@@ -31,7 +31,7 @@ def get_args():
     parser.add_argument('--player_2_strategy', type=str, default = 'simple')
     parser.add_argument('--replay_folder', type=str, default = 'replays')
     parser.add_argument('--save_replay', type=bool, default = True)
-    parser.add_argument('--play_replay', type=str, default = None)
+    parser.add_argument('--disable_rendering', action = 'store_true')
     args = parser.parse_args()
     return args
 
@@ -82,13 +82,16 @@ def main():
     player_game = PlayerGame(game, strategies)
     # GUI
 
-    pygame.init()
-    screen = pygame.display.set_mode((int(args.width * args.player_dim), int(args.height * args.player_dim)))
-    pygame.display.set_caption('Tron')
-    pygame.mouse.set_visible(0)
-    clock = pygame.time.Clock()
+    if not args.disable_rendering:
+        pygame.init()
+        screen = pygame.display.set_mode((int(args.width * args.player_dim), int(args.height * args.player_dim)))
+        pygame.display.set_caption('Tron')
+        pygame.mouse.set_visible(0)
+        clock = pygame.time.Clock()
 
     def get_background():
+        if args.disable_rendering:
+            return
         background = pygame.Surface(screen.get_size())
         background.fill((255, 255, 255))  # fill the background white
         background = background.convert()  # prepare for faster blitting
@@ -99,6 +102,9 @@ def main():
     PLAYER_COLORS = [(255, 0, 0), (0, 0, 255)]
 
     def draw_game():
+        if args.disable_rendering:
+            return
+        clock.tick(1000)
         for y, row in enumerate(game.get_game_state_as_class().game_field):
             for x, cell in enumerate(row):
                 if cell != 0:
@@ -117,15 +123,19 @@ def main():
 
     while going:
         start_time = time()
-        clock.tick(1000)
 
-        events = pygame.event.get()
-        if events is None:
+
+        if not args.disable_rendering:
+            events = pygame.event.get()
+            if events is None:
+                events = []
+
+            if has_quit(events):
+                pygame.quit()
+                sys.exit()
+        else:
             events = []
 
-        if has_quit(events):
-            pygame.quit()
-            sys.exit()
 
         player_game.evaluate(events)
 

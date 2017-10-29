@@ -7,7 +7,7 @@ import sys
 def get_args():
     import argparse
     parser = argparse.ArgumentParser(description='Play a replay')
-    parser.add_argument('--replay_file', type=str, default = None)
+    parser.add_argument('--replay_folder', type=str, default = 'replays')
     parser.add_argument('--player_dim', type=int, default=14)
     parser.add_argument('--delay_after_gameover', type=int, default=500)
     parser.add_argument('--tick_delay', type=int, default=1)
@@ -18,7 +18,7 @@ def get_args():
 def main():
     args = get_args()
 
-    used_replays = [(args.replay_file, replay_helper.get_replay(args.replay_file))] if args.replay_file else replay_helper.get_all_replays()
+    used_replays = replay_helper.get_all_replays(args.replay_folder)
 
     pygame.font.init()
     font = pygame.font.SysFont("Verdana", 20)

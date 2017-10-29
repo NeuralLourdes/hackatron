@@ -1,0 +1,10 @@
+python play_replay.py --replay_folder ./replays/RandomStrategy_vs_SimpleStrategy
+python play_replay.py --replay_folder ./replays/NEATStrategy_vs_SimpleStrategy
+python play_replay.py --replay_folder ./replays/SimpleStrategy_vs_SimpleStrategy
+python play_replay.py --replay_folder ./replays/RLKerasStrategy_vs_SimpleStrategy
+python play_replay.py --replay_folder ./replays/Beste_ki_vs_SimpleStrategy
+
+python main.py --width 40 --height 40 --player_1_strategy random --player_2_strategy simple
+python main.py --width 40 --height 40 --player_1_strategy simple --player_2_strategy simple
+python main.py --width 40 --height 40 --player_1_strategy rl_keras --player_2_strategy simple
+python main.py --width 40 --height 40 --player_1_strategy human --player_2_strategy simple

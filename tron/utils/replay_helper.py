@@ -12,8 +12,15 @@ def init_replay(folder):
     if not os.path.exists(REPLAY_FOLDER):
         os.makedirs(folder)
 
-def get_all_replays():
-    return reversed(sorted([(i, get_replay(i)) for i in glob('{}/replay_*'.format(REPLAY_FOLDER))]))
+def get_all_replays(replay_folder = None, verbose = False):
+    replays = []
+    for filename in glob('{}/replay_*'.format(replay_folder)):
+        try:
+            replays.append((filename, get_replay(filename)))
+        except:
+            if verbose:
+                print('Warning: could not load replay: {}'.format(filename))
+    return reversed(replays)
 
 def save_replay(replay, filename = None, info = {}):
     if filename is None:
