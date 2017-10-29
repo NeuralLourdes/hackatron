@@ -129,7 +129,8 @@ class TronGame(object):
         player_heads = []
         for p in self.players:
             player_head = np.zeros(mats[0].shape)
-            player_head[p.y, p.x] = 1
+            if self.check_pos_is_invalid(p.x, p.y):
+                player_head[p.y, p.x] = 1
             mats.append(player_head)
         return np.stack(mats, axis = 2)
             #np.concatenate([np.vstack(mats).flatten(), player_heads])
