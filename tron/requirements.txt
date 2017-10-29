@@ -2,3 +2,4 @@ numpy
 pygame
 pandas
 keras-rl
+tensorflow
