@@ -52,9 +52,6 @@ class alphaSnakeStrategy(player_game.PlayerStrategy):
         if used_action == -1:
             used_action = 0
 
-
-
-
         return np.random.choice([np.random.choice(game.get_available_actions()),action,action,action,action,action,action])
 
 

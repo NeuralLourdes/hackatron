@@ -1,23 +1,21 @@
-import sys
 import os
-import numpy as np
 import tensorflow as tf
-#from tfsave import *
-import random
-from strategy import player_game
 import strategy.AlphaSnake.GameStatePredictionNetwork as gspn
 from strategy.AlphaSnake.AlphaSnakeHelper import *
 import pickle
 import time
 import zipfile
+from pathlib import Path
 
-learning_rate = 0.0000001
 
-train_every_x_losses = 1
+learning_rate = 0.000001
+
+train_every_x_losses = 10
 print_every_x_frames = 10
-reset_data_after_training = True
-debug_mode=True
-batch_size=10
+reset_data_after_training = False
+debug_mode = True
+batch_size = 10
+max_training_data = 1000
 
 class Game_State_Predictor:
 
@@ -39,10 +37,9 @@ class Game_State_Predictor:
         self.reset_counter=0
         self.framecounter=0
         self.player_idx = player_idx
-        self.model_file = './Data/Models/model.m'
-        #self.load_model(self.model_file)
+        self.model_file = os.path.dirname(os.path.realpath(__file__))+'/model/model'
+        self.load_model(self.model_file)
         self.training_step = 0
-        #self.save_model(self.model_file)
 
 
 
@@ -63,9 +60,10 @@ class Game_State_Predictor:
 
 
     def load_model(self,filename):
-        print("loading model")
-        saver = tf.train.Saver()
-        saver.restore(self.tf_sess, filename)
+        if Path(filename).exists():
+            print("loading model")
+            saver = tf.train.Saver()
+            saver.restore(self.tf_sess, filename)
 
     def save_model(self,filename):
         print("Saving model...")
@@ -108,13 +106,10 @@ class Game_State_Predictor:
             batch_x, batch_y = self.get_batch(x_train, y_train, batch_size)
 
             _, loss = self.tf_sess.run([self.optimizer,self.cost_tensor], feed_dict={self.input_tensor: batch_x, self.output_tensor: batch_y, self.keep_prob_tensor: dropout})
-            print(loss)
 
         print("trained player with loss ", loss)
 
-
-        #if self.training_step % 10 == 0:
-            #self.save_model(self.model_file)
+        self.save_model(self.model_file)
 
         self.training_step += 1
 
@@ -179,8 +174,7 @@ class Game_State_Predictor:
                                 game_state.player_pos[1-self.player_idx],
                                 self.player_idx,
                                 1-self.player_idx,
-                                game_state.player_orientation[self.player_idx],
-                                game_state.player_orientation[1 - self.player_idx])
+                                game_state.player_orientation[self.player_idx])
 
 
     def get_prediction_matrix(self, field, ppos, npos, p1_idx, p2_idx, player_rotation):
@@ -208,8 +202,16 @@ class Game_State_Predictor:
             if self.reset_counter >= train_every_x_losses:
                 self.reset_counter=0
                 self.train(self.game_state_input_buffer, self.game_state_output_buffer, None, None, 0.9)
+                print("Training samples: ", len(self.game_state_input_buffer))
+                if len(self.game_state_input_buffer) > max_training_data:
+                    print("Dropping ", int(max_training_data/2), " training samples----------------------------------")
+                    tmp_output = list(self.game_state_output_buffer)
+                    for i in range(int(max_training_data/2)):
+                        index = np.random.randint(0, len(self.game_state_input_buffer))
+                        self.game_state_input_buffer.pop(index)
+                        tmp_output.pop(index)
 
-
+                        self.game_state_output_buffer = np.array(tmp_output)
 
                 if reset_data_after_training:
                     #self.save_data(self.game_state_input_buffer, self.game_state_output_buffer)

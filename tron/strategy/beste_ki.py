@@ -16,9 +16,7 @@ class Beste_ki(player_game.PlayerStrategy):
         return [own_score for own_score, _ in self.GSP.get_game_score(matrix_list)]
 
     def get_action(self, game, game_state, other = None):
-        p1pos = game_state.player_pos[self.get_player_idx()]
-        p2pos = game_state.player_pos[self.get_enemy_idx()]
-        self.GSP.on_new_data(game_state.game_field, p1pos, p2pos, self.get_player_idx(), self.get_enemy_idx())
+        self.GSP.on_new_data(game_state, self.get_player_idx(), self.get_enemy_idx())
         action = self.builder.find_best_action(game, 0)
         return action
 
