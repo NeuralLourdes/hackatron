@@ -1,7 +1,7 @@
 import numpy as np
 import collections
 import copy
-from strategy.simple_strategy import SimpleStrategy
+#from strategy.simple_strategy import SimpleStrategy
 
 GameState = collections.namedtuple('GameState', ['game_over', 'game_field', 'player_pos', 'player_orientation', 'player_lost'])
 Point = collections.namedtuple('Point', ['x', 'y'])
