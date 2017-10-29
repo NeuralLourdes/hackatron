@@ -74,13 +74,19 @@ class Game_State_Predictor:
 
 
 
+    #on_new_data(self.get_player_idx(),self.get_enemy_idx())
+    def on_new_data(self, game_state, p1_idx, p2_idx):
 
-    def on_new_data(self, field, p1pos, p2pos, p1_idx, p2_idx):
+        p1pos = game_state.player_pos[p1_idx]
+        p2pos = game_state.player_pos[p2_idx]
 
-        train_mat = get_training_matrix(field, p1pos, p2pos, p1_idx, p2_idx)
+        player_rotation = game_state.player_orientation[p1_idx]
+        enemy_rotation = game_state.player_orientation[p2_idx]
+
+        train_mat = get_training_matrix(game_state.game_field, p1pos, p2pos, p1_idx, p2_idx, player_rotation)
         self.game_state_input_buffer.append(train_mat)
 
-        flipped_train_mat = get_training_matrix(field, p2pos, p1pos, p1_idx, p2_idx)
+        flipped_train_mat = get_training_matrix(game_state.game_field, p2pos, p1pos, p1_idx, p2_idx, enemy_rotation)
         self.flipped_game_state_input_buffer.append(flipped_train_mat)
 
     def get_batch(self, x, y, size):
@@ -170,11 +176,15 @@ class Game_State_Predictor:
         game_state = game.get_game_state_as_class()
         return self.get_prediction_matrix(game_state.game_field,
                                 game_state.player_pos[self.player_idx],
-                                game_state.player_pos[1-self.player_idx], self.player_idx, 1-self.player_idx)
+                                game_state.player_pos[1-self.player_idx],
+                                self.player_idx,
+                                1-self.player_idx,
+                                game_state.player_orientation[self.player_idx],
+                                game_state.player_orientation[1 - self.player_idx])
 
 
-    def get_prediction_matrix(self, field, ppos, npos, p1_idx, p2_idx):
-        return get_training_matrix(field, ppos, npos, p1_idx, p2_idx)
+    def get_prediction_matrix(self, field, ppos, npos, p1_idx, p2_idx, player_rotation):
+        return get_training_matrix(field, ppos, npos, p1_idx, p2_idx, player_rotation)
 
     def get_game_score(self,prediction_matrix_list):
         timestamp = time.time()
