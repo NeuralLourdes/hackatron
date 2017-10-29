@@ -6,19 +6,18 @@ import tron
 from time import time
 import sys
 import numpy as np
+import os
 
+from utils import replay_helper
 from strategy.human_player_strategy import HumanPlayerStrategy
 from strategy.random_strategy import RandomStrategy
 from strategy.simple_strategy import SimpleStrategy
 from strategy.player_game import PlayerGame
 from strategy.rl_strategy import RLStrategy
 from strategy.rl_keras_strategy import RLKerasStrategy
-#from strategy.beste_ki import Beste_ki
-#from strategy.neat.neat_strategy import NEATStrategy
-#from strategy.neat.neat_strategy import NEATStrategy
 from strategy.neat.neat_strategy import NEATStrategy
-#from strategy.rl_strategy import RLStrategy
 from strategy.beste_ki import Beste_ki
+
 
 def get_args():
     import argparse
@@ -30,6 +29,9 @@ def get_args():
     parser.add_argument('--timeout', type=int, default = 10)
     parser.add_argument('--player_1_strategy', type=str, default = 'simple')
     parser.add_argument('--player_2_strategy', type=str, default = 'simple')
+    parser.add_argument('--replay_folder', type=str, default = 'replays')
+    parser.add_argument('--save_replay', type=bool, default = True)
+    parser.add_argument('--play_replay', type=str, default = None)
     args = parser.parse_args()
     return args
 
@@ -45,10 +47,12 @@ def main():
 
     args = get_args()
 
+    replay_helper.init_replay(args.replay_folder)
+
     def init_game(random = True):
         def get_random_orientation():
             return np.random.choice([0, 90, 180, 270])
-        game = tron.TronGame(width = args.width, height = args.height)
+        game = tron.TronGame(width = args.width, height = args.height, save_history = args.save_replay)
         if random:
             game.set_player_pos(game.get_random_pos(), game.get_random_pos())
             game.set_player_orientation([get_random_orientation(), get_random_orientation()])
@@ -58,6 +62,7 @@ def main():
 
     strategy_definitions = dict(
         simple = lambda p: SimpleStrategy(p),
+        random = lambda p: RandomStrategy(p),
         human = lambda p: HumanPlayerStrategy(p),
         beste_ki = lambda p: Beste_ki(p, game.width, game.height),
         rl = lambda p: RLStrategy(p),
@@ -127,6 +132,11 @@ def main():
 
         # Restart game
         if game.game_over() or wants_to_restart:
+
+            replay_helper.save_replay(game.get_replay(), info = dict(
+                strategies = [str(strategy) for strategy in strategies]
+            ))
+
             draw_game()
             game_state = game.get_game_state_as_class()
             for player_idx, strategy in enumerate(strategies):

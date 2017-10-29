@@ -27,6 +27,9 @@ class PlayerStrategy(object):
     def enemy_has_won(self, game):
         return not game.player_lost[self.get_enemy_idx()]
 
+    def __str__(self):
+        return type(self).__name__
+
 
 
 class PlayerGame(object):

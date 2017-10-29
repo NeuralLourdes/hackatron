@@ -24,7 +24,11 @@ def save_progress(model):
 def get_model(env, num_layers = 4, layer_size = 512, window_lenght = 1):
     num_actions = len(env.get_available_actions())
     model = Sequential()
+
     model.add(Flatten(input_shape=(1,) + env.get_decomposed_game_field().shape))
+
+    #model.add(keras.layers.Conv2D(filters=2, kernel_size = 5, data_format = 'channels_last', input_shape = env.get_decomposed_game_field().shape))
+    #model.add(Flatten())
 
     for i in range(num_layers):
         model.add(Dense(layer_size))
@@ -32,7 +36,7 @@ def get_model(env, num_layers = 4, layer_size = 512, window_lenght = 1):
 
     model.add(Dense(num_actions))
     model.add(Activation('linear'))
-    #print(model.summary())
+    print(model.summary())
 
     policy = EpsGreedyQPolicy(eps=.3)
     memory = SequentialMemory(limit=100000, window_length=window_lenght)

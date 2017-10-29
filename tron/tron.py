@@ -5,6 +5,7 @@ from strategy.simple_strategy import SimpleStrategy
 
 GameState = collections.namedtuple('GameState', ['game_over', 'game_field', 'player_pos', 'player_orientation', 'player_lost'])
 Point = collections.namedtuple('Point', ['x', 'y'])
+Replay = collections.namedtuple('Replay', ['info', 'bodies', 'orientations', 'actions', 'game_field', 'player_lost'])
 
 PLAYER_1 = 0
 PLAYER_2 = 1
@@ -16,12 +17,14 @@ ACTION_STRAIGHT = 2
 
 class Player():
 
-    def __init__(self, name='default', pos=Point(0, 0), orientation=180, body=None):
+    def __init__(self, name='default', pos=Point(0, 0), orientation=180, body=None, actions=None):
         self.name = name
         self.x, self.y = pos
         self.pos = pos
         self.orientation = orientation
         self.body = body if body is not None else []
+        self.actions = [] if actions is None else actions
+        self.orientations = [orientation]
 
     def get_position(self):
         return self.pos
@@ -57,6 +60,7 @@ class Player():
 
 
     def do_action(self, action):
+        self.actions.append(action)
         factor = 0
 
         if action == ACTION_TURN_LEFT:
@@ -75,6 +79,7 @@ class Player():
         else:
             self.x -= 1
 
+        self.orientations.append(self.orientation)
         self.pos = Point(self.x, self.y)
 
     def clone(self):
@@ -90,9 +95,10 @@ class TronGame(object):
     ACTION_TURN_RIGHT = ACTION_TURN_RIGHT
     ACTION_STRAIGHT = ACTION_STRAIGHT
 
-    def __init__(self, width=20, height=20, reset=True):
+    def __init__(self, width=20, height=20, reset=True, save_history = False):
         self.width = width
         self.height = height
+        self.save_history = save_history
         # Start positions
         if reset:
             self.reset()
@@ -105,6 +111,7 @@ class TronGame(object):
         self.player_lost = [False, False]
         self.tick = 0
         self.game_field = np.zeros((self.height, self.width), dtype=np.int8)
+        self.game_field_history = []
 
         if set_random:
             self.set_player_pos(self.get_random_pos(), self.get_random_pos())
@@ -119,7 +126,13 @@ class TronGame(object):
             mat[mat == player_idx + 1] = 1
 
         player_heads = np.array([[p.x, p.y] for p in self.players]).flatten()
-        return np.concatenate([np.vstack(mats).flatten(), player_heads])
+        player_heads = []
+        for p in self.players:
+            player_head = np.zeros(mats[0].shape)
+            player_head[p.y, p.x] = 1
+            mats.append(player_head)
+        return np.stack(mats, axis = 2)
+            #np.concatenate([np.vstack(mats).flatten(), player_heads])
 
     def step(self, action):
         s = SimpleStrategy(1)
@@ -152,12 +165,13 @@ class TronGame(object):
 
         if game_over and np.all(self.has_played):
             #reward += self.tick
-            reward += 10 if not self.player_lost[0] else 0
+            reward += 10 if not self.player_lost[0] else -5
             self.reset(True)
 
         #game_field = np.copy(self.game_field)
         #game_field[game_field> 0] = 1
         #game_field = game_field_copy
+        print('GameField', game_field.shape)
         return game_field, reward, game_over, info
 
     def get_random_orientation(self):
@@ -175,6 +189,12 @@ class TronGame(object):
             player.orientation = orientation
 
     def set_action(self, player, action):
+        if self.save_history and not np.any(self.has_played):
+            self.save_current_state()
+
+        if self.save_history:
+            self.players[player].add_to_body()
+
         if self.has_played[player]:
             print('Warning: player {} already did an action this tick. Ignoring'.format(player))
             return
@@ -203,6 +223,9 @@ class TronGame(object):
 
                 self.has_played = [False, False]
             self.tick += 1
+
+
+
 
     def check_collisions(self):
         for player_idx, player in enumerate(self.players):
@@ -308,6 +331,22 @@ class TronGame(object):
     def game_over(self):
         player_has_lost = np.any(self.player_lost)
         return player_has_lost
+
+    def get_replay(self):
+        return Replay(
+            info = dict(
+                width = self.width,
+                height = self.height
+            ),
+            player_lost = np.copy(self.player_lost),
+            orientations= [np.copy(p.orientations) for p in self.players],
+            bodies = [np.copy(p.body) for p in self.players],
+            actions = [np.copy(p.actions) for p in self.players],
+            game_field = self.game_field_history
+        )
+
+    def save_current_state(self):
+        self.game_field_history.append(np.copy(self.game_field))
 
 
     def get_available_actions(self):
