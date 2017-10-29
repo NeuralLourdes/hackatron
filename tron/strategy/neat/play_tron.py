@@ -17,7 +17,7 @@ def transform_map(gameMapRaw, heads, rotation):
     gameMapRaw[heads[0][1], heads[0][0]] = 3
     gameMapRaw[heads[1][1], heads[1][0]] = 3
 
-    visual_range = 5
+    visual_range = 7
 
     def extract(gameMap, pick, head, rotation):
         visual_map = np.empty([visual_range, visual_range], dtype=int)
@@ -28,9 +28,9 @@ def transform_map(gameMapRaw, heads, rotation):
         for y_offset in range(visual_range):
             for x_offset in range(visual_range):
                 x_pos = x_head - int(visual_range)/2 + x_offset
-                x_pos = int(x_pos)
+                x_pos = int(x_pos + 1)
                 y_pos = y_head - int(visual_range)/2 + y_offset
-                y_pos = int(y_pos)
+                y_pos = int(y_pos + 1)
                 if x_pos >= 0 and x_pos < gameSize[0] and y_pos >= 0 and y_pos < gameSize[1]:
                     val = gameMap[y_pos, x_pos]      
 
@@ -46,7 +46,7 @@ def transform_map(gameMapRaw, heads, rotation):
                 else:
                     visual_map[y_offset, x_offset] = 1
 
-        visual_map = np.rot90(visual_map, k = 1+int(rotation/90))
+        visual_map = np.rot90(visual_map, k = int(rotation/90))
         return visual_map
     
     visual_map1 = extract(gameMapRaw, 1, head1, rotation[0])
@@ -155,42 +155,31 @@ def eval_genomes(genomes, config):
                     genome2.fitness += 1
 
 
-def eval_genome_vs_the_best(genome, config):
-    
-    fitness = 0.0
-
-    #for genome_id1, genome1 in genomes:
-    #    for genome_id2, genome2 in genomes:
-    #        if genome_id1 > genome_id2:
-
-    net1 = neat.nn.FeedForwardNetwork.create(genome, config)
-    #net2 = neat.nn.FeedForwardNetwork.create(genome2, config)
-    
-    fight = game_outcome(net1, net1)
-
-    if fight == 1:
-        fitness += 1
-    elif fight == 2:
-        fitness -= 1
-
-    return fitness
-
 class genome_parallel:
-    def __init__(self, best_net):
+    def __init__(self, best_net, ref_nets):
         self.best_net = best_net
+        self.ref_nets = ref_nets
 
     def eval_fn(self, genome, config):
-        fitness = 0.0
+        fitness = 0
 
-        net1 = neat.nn.FeedForwardNetwork.create(genome, config)
-        net2 = neat.nn.FeedForwardNetwork.create(self.best_net, config)
+        testnet = neat.nn.FeedForwardNetwork.create(genome, config)
+        bestnet = neat.nn.FeedForwardNetwork.create(self.best_net, config)
         
-        fight = game_outcome(net1, net2)
+        def fight(opponet, fitness):
+            fight = game_outcome(testnet, opponet)
 
-        if fight == 1:
-            fitness += 1
-        elif fight == 2:
-            fitness -= 1
+            if fight == 1:
+                fitness += 1
+            elif fight == 2:
+                fitness -= 1
+
+            return fitness
+
+        fitness = fight(bestnet, fitness)
+
+        for net in self.ref_nets:
+            fitness = fight(net, fitness)
 
         return fitness
 

@@ -11,11 +11,11 @@ import pickle
 import time
 import zipfile
 
-learning_rate = 0.00001
+learning_rate = 0.0000001
 
 train_every_x_losses = 1
 print_every_x_frames = 10
-reset_data_after_training = False
+reset_data_after_training = True
 debug_mode=True
 batch_size=10
 
@@ -39,12 +39,10 @@ class Game_State_Predictor:
         self.reset_counter=0
         self.framecounter=0
         self.player_idx = player_idx
-
-        file=os.path.dirname(os.path.realpath(__file__)) + '/Data/Models/model.m'
-
-        self.save_model(file)
-
-        self.load_model(file)
+        self.model_file = './Data/Models/model.m'
+        #self.load_model(self.model_file)
+        self.training_step = 0
+        #self.save_model(self.model_file)
 
 
 
@@ -76,13 +74,19 @@ class Game_State_Predictor:
 
 
 
+    #on_new_data(self.get_player_idx(),self.get_enemy_idx())
+    def on_new_data(self, game_state, p1_idx, p2_idx):
 
-    def on_new_data(self, field, p1pos, p2pos, p1_idx, p2_idx):
+        p1pos = game_state.player_pos[p1_idx]
+        p2pos = game_state.player_pos[p2_idx]
 
-        train_mat = get_training_matrix(field, p1pos, p2pos, p1_idx, p2_idx)
+        player_rotation = game_state.player_orientation[p1_idx]
+        enemy_rotation = game_state.player_orientation[p2_idx]
+
+        train_mat = get_training_matrix(game_state.game_field, p1pos, p2pos, p1_idx, p2_idx, player_rotation)
         self.game_state_input_buffer.append(train_mat)
 
-        flipped_train_mat = get_training_matrix(field, p2pos, p1pos, p1_idx, p2_idx)
+        flipped_train_mat = get_training_matrix(game_state.game_field, p2pos, p1pos, p1_idx, p2_idx, enemy_rotation)
         self.flipped_game_state_input_buffer.append(flipped_train_mat)
 
     def get_batch(self, x, y, size):
@@ -107,6 +111,12 @@ class Game_State_Predictor:
             print(loss)
 
         print("trained player with loss ", loss)
+
+
+        #if self.training_step % 10 == 0:
+            #self.save_model(self.model_file)
+
+        self.training_step += 1
 
 
     def create_data(self, p1_won,p2_won):
@@ -166,11 +176,15 @@ class Game_State_Predictor:
         game_state = game.get_game_state_as_class()
         return self.get_prediction_matrix(game_state.game_field,
                                 game_state.player_pos[self.player_idx],
-                                game_state.player_pos[1-self.player_idx], self.player_idx, 1-self.player_idx)
+                                game_state.player_pos[1-self.player_idx],
+                                self.player_idx,
+                                1-self.player_idx,
+                                game_state.player_orientation[self.player_idx],
+                                game_state.player_orientation[1 - self.player_idx])
 
 
-    def get_prediction_matrix(self, field, ppos, npos, p1_idx, p2_idx):
-        return get_training_matrix(field, ppos, npos, p1_idx, p2_idx)
+    def get_prediction_matrix(self, field, ppos, npos, p1_idx, p2_idx, player_rotation):
+        return get_training_matrix(field, ppos, npos, p1_idx, p2_idx, player_rotation)
 
     def get_game_score(self,prediction_matrix_list):
         timestamp = time.time()

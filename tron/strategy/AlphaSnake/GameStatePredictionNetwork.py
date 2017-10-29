@@ -13,10 +13,13 @@ def get_prediction_network_head(input,keep_prob,name_pref):
     norm2 = tf.layers.batch_normalization(drop2, name=name_pref+"alx_norm2")
 
     r1 = tf.contrib.layers.flatten(norm2)
-    dense1 = tf.layers.dense(inputs=r1, units=4000, name=name_pref+"alx_dense1")
-    dense2 = tf.layers.dense(inputs=dense1, units=2000, name=name_pref+"alx_dense2")
-    dense3 = tf.layers.dense(inputs=dense2, units=1000, name=name_pref + "alx_dense3")
-    dense4 = tf.layers.dense(inputs=dense3, units=100, name=name_pref + "alx_dense4")
+    dense1 = tf.layers.dense(inputs=r1, units=4000, name=name_pref+"alx_dense1", activation=tf.nn.relu)
+    norm3 = tf.layers.batch_normalization(dense1, name=name_pref+"alx_norm3")
+    dense2 = tf.layers.dense(inputs=norm3, units=2000, name=name_pref+"alx_dense2", activation=tf.nn.relu)
+    norm4 = tf.layers.batch_normalization(dense2, name=name_pref + "alx_norm4")
+    dense3 = tf.layers.dense(inputs=norm4, units=1000, name=name_pref + "alx_dense3", activation=tf.nn.relu)
+    norm5 = tf.layers.batch_normalization(dense3, name=name_pref + "alx_norm5")
+    dense4 = tf.layers.dense(inputs=norm5, units=100, name=name_pref + "alx_dense4", activation=tf.nn.relu)
     return dense4
 
 

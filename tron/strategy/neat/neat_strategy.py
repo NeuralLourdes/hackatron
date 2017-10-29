@@ -16,6 +16,7 @@ class NEATStrategy(player_game.PlayerStrategy):
 
     def get_action(self, game, game_state, other=None):
         player = game.players[self.player_idx]
+        play_tron.gameSize = [game.width, game.height]
         action = play_tron.calc_next_action(game, self.player_idx, self.bester_boi)
 
         return action

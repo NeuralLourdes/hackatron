@@ -17,7 +17,7 @@ def transform_map(gameMapRaw, heads, rotation):
     gameMapRaw[heads[0][1], heads[0][0]] = 3
     gameMapRaw[heads[1][1], heads[1][0]] = 3
 
-    visual_range = 5
+    visual_range = 7
 
     def extract(gameMap, pick, head, rotation):
         visual_map = np.empty([visual_range, visual_range], dtype=int)
@@ -28,9 +28,9 @@ def transform_map(gameMapRaw, heads, rotation):
         for y_offset in range(visual_range):
             for x_offset in range(visual_range):
                 x_pos = x_head - int(visual_range)/2 + x_offset
-                x_pos = int(x_pos)
+                x_pos = int(x_pos + 1)
                 y_pos = y_head - int(visual_range)/2 + y_offset
-                y_pos = int(y_pos)
+                y_pos = int(y_pos + 1)
                 if x_pos >= 0 and x_pos < gameSize[0] and y_pos >= 0 and y_pos < gameSize[1]:
                     val = gameMap[y_pos, x_pos]      
 
@@ -46,7 +46,7 @@ def transform_map(gameMapRaw, heads, rotation):
                 else:
                     visual_map[y_offset, x_offset] = 1
 
-        visual_map = np.rot90(visual_map, k = 1+int(rotation/90))
+        visual_map = np.rot90(visual_map, k = int(rotation/90))
         return visual_map
     
     visual_map1 = extract(gameMapRaw, 1, head1, rotation[0])
@@ -156,10 +156,9 @@ def eval_genomes(genomes, config):
 
 
 class genome_parallel:
-    def __init__(self, best_net, ref_net1, ref_net2):
+    def __init__(self, best_net, ref_nets):
         self.best_net = best_net
-        self.ref_net1 = ref_net1
-        self.ref_net2 = ref_net2
+        self.ref_nets = ref_nets
 
     def eval_fn(self, genome, config):
         fitness = 0
@@ -178,8 +177,9 @@ class genome_parallel:
             return fitness
 
         fitness = fight(bestnet, fitness)
-        fitness = fight(self.ref_net1, fitness)
-        fitness = fight(self.ref_net2, fitness)
+
+        for net in self.ref_nets:
+            fitness = fight(net, fitness)
 
         return fitness
 

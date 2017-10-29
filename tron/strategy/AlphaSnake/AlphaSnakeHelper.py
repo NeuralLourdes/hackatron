@@ -1,8 +1,9 @@
-
 import numpy as np
+
 
 def generate_player_mat(gamestate ,player_id):
     return gamestate == player_id
+
 
 def generate_player_head_mat(gamestate ,headpos):
     result = gamestate == -1
@@ -11,10 +12,10 @@ def generate_player_head_mat(gamestate ,headpos):
     return result
 
 
-def get_training_matrix(gamestate ,p1pos ,p2pos, player_idx, enemy_idx):
-    p1h = generate_player_head_mat(gamestate, p1pos)
-    p2h = generate_player_head_mat(gamestate, p2pos)
-    p1s = generate_player_mat(gamestate, player_idx)
-    p2s = generate_player_mat(gamestate, enemy_idx)
+def get_training_matrix(gamestate ,p1pos ,p2pos, player_idx, enemy_idx, player_rotation):
+    p1h = np.rot(generate_player_head_mat(gamestate, p1pos), player_rotation)
+    p2h = np.rot(generate_player_head_mat(gamestate, p2pos), player_rotation)
+    p1s = np.rot(generate_player_mat(gamestate, player_idx), player_rotation)
+    p2s = np.rot(generate_player_mat(gamestate, enemy_idx), player_rotation)
     return np.stack([p1h, p2h, p1s, p2s], axis=2)
 

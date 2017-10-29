@@ -110,6 +110,11 @@ def main():
 
     going = True
     counter = 0
+
+    player_1_won = 0
+    player_2_won = 0
+    games_played = 0
+
     while going:
         start_time = time()
         clock.tick(1000)
@@ -139,12 +144,24 @@ def main():
 
             draw_game()
             game_state = game.get_game_state_as_class()
+
+            games_played += 1
+            if not game.player_lost[0]:
+                player_1_won += 1
+            if not game.player_lost[1]:
+                player_2_won += 1
+
+            print("Game ended. Player 1 won: ", not game.player_lost[0], " Player 2 won: ", not game.player_lost[1])
+            print("Gamestats: ", games_played, " [Player 1 won: ", player_1_won, "] [Player 2 won: ", player_2_won, "]")
+
             for player_idx, strategy in enumerate(strategies):
                 strategy.on_game_over(game, game_state)
             pygame.time.wait(500)
             background = get_background()
             game = init_game(True)
             player_game.game = game
+
+
             continue
 
         if counter % args.skip_frames == 0:
