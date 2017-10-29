@@ -37,8 +37,9 @@ class Game_State_Predictor:
         self.reset_counter=0
         self.framecounter=0
         self.player_idx = player_idx
-        self.model_file = os.path.dirname(os.path.realpath(__file__))+'/model/model'
-        self.load_model(self.model_file)
+        self.model_dir = os.path.dirname(os.path.realpath(__file__))+'/model'
+        print("Model dir ", self.model_dir)
+        self.load_model(self.model_dir)
         self.training_step = 0
 
 
@@ -59,16 +60,17 @@ class Game_State_Predictor:
                      'beta1_power:0', 'beta2_power:0']
 
 
-    def load_model(self,filename):
-        if Path(filename).exists():
+    def load_model(self,model_path):
+        print("Trying to load model from file ", model_path+"/model")
+        if Path(model_path).exists():
             print("loading model")
             saver = tf.train.Saver()
-            saver.restore(self.tf_sess, filename)
+            saver.restore(self.tf_sess, model_path+"/model")
 
-    def save_model(self,filename):
-        print("Saving model...")
+    def save_model(self, model_path):
+        print("Saving model to ", model_path+"/model")
         saver = tf.train.Saver()
-        saver.save(self.tf_sess, filename)
+        saver.save(self.tf_sess, model_path+"/model")
 
 
 
@@ -109,7 +111,7 @@ class Game_State_Predictor:
 
         print("trained player with loss ", loss)
 
-        self.save_model(self.model_file)
+        self.save_model(self.model_dir)
 
         self.training_step += 1
 
