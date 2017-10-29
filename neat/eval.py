@@ -25,7 +25,7 @@ def run(config_file):
     pop.add_reporter(stats)
     pop.add_reporter(neat.Checkpointer(5))
 
-    generations = 50
+    generations = 60
 
     # SERIAL # 
     #winner = pop.run(play_tron.eval_genomes, generations)
@@ -33,7 +33,7 @@ def run(config_file):
     # PARALLEL # 
     
     cpu_cores = 1
-    references = 9
+    references = 11
     files = ['neat_reference'+str(n+1) for n in range(references)]
     refnets = [NN_IO.restore(filename) for filename in files]
     print(refnets)
